@@ -19,4 +19,4 @@ Change the spacing to generate longer path in the maze.
 
 ## CREDITS AND REFERENCES
 
-This work is based on script created as a case study for a the graduation thesis: "Cooperative and optimization stragegies in bio-based agents model" by C. Crespi and A. Rapisada, A. Pluchino as supervisor. 
+This work is based on script created as a case study for a the graduation thesis: "Cooperative and optimization stragegies in bio-based agents model" by C. Crespi and A. Rapisarda, A. Pluchino as supervisor. 
