@@ -112,7 +112,7 @@ to build-maze
             set heading towards straight
             draw-move
             set straight patch-at ( dx * spacing) ( dy * spacing )
-            set running ( random-float 1.0 >= 1 and is-open straight )
+            set running ( is-open straight )
           ]
         ]
         if (any? nodes-on patch-here)
@@ -193,7 +193,7 @@ to build-maze-debug
           set heading towards straight
           draw-move
           set straight patch-at ( dx * spacing) ( dy * spacing )
-          set running ( random-float 1.0 >= 1 and is-open straight )
+          set running (is-open straight )
         ]
       ]
       if (any? nodes-on patch-here)
@@ -367,7 +367,7 @@ BUTTON
 178
 NIL
 build-maze-debug
-NIL
+T
 1
 T
 OBSERVER
