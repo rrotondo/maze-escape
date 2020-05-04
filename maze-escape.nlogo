@@ -63,7 +63,6 @@ end
 
 ;; Build maze
 to build-maze
-  ;; Choose a random starting point
   create-builders  1
   [ ;; choose a random starting point
     let start one-of tiles
@@ -79,19 +78,16 @@ to build-maze
   [
     ;; store starting point
     set stack fput ( list xcor ycor ) stack
-    ;; in this while the maze building process
     while [ length stack > 0 ]
-    [
-      let paths 0
+    [ ;; in this while the maze building process
       let target 0
       let left-right 0
       let straight 0
       let running 0
       let my-color 0
-      set paths find-open-paths
+      let paths find-open-paths
       ifelse any? paths
-      ;;paths is not-empty
-      [
+      [ ;; ifelse any? paths --> paths is not-empty
         set straight patch-ahead spacing
         set left-right paths with [ self != straight ]
         let node1 0
@@ -100,12 +96,13 @@ to build-maze
         ifelse (any? left-right ) or not is-open straight
         [
           set target one-of left-right
-          ;; store starting point
+          ;; record stack
           set stack fput ( list xcor ycor ) stack
           set heading towards target
           draw-move
         ]
-        [ set running true
+        [
+          set running true
           while [ running ]
           [
             set heading towards straight
@@ -117,13 +114,11 @@ to build-maze
         if (any? nodes-on patch-here)
         [ask one-of nodes-on patch-here [create-link-with node1 [set color cyan]] ]
        ]
-      ;;path is empty
-      [
+      [ ;; ifelse any? paths --> path is empty
         ifelse length stack > 0
-        [
-          ;; start the building process
-          let xy 0
-          set xy item 0 stack
+        [ ;; start the building process
+          let xy item 0 stack
+          ;; removing first element from stack
           set stack but-first stack
           setxy (item 0 xy) (item 1 xy)
          ]
@@ -152,12 +147,11 @@ end
 
 ;; draw move
 to draw-move
-    let my-color 0
-    let start-spot 0
-    set my-color 9.91
-    set start-spot patch-here
-    repeat spacing [ ask patches in-radius 1 [ set pcolor 9.91 ] jump 1 ]
-    ask start-spot [ ask patches in-radius 1 [ set pcolor 9.91 ] ]
+  let my-color 9.91
+  let start-spot patch-here
+  ask start-spot [ ask patches in-radius 1 [ set pcolor 9.91 ] ]
+  repeat spacing [ ask patches in-radius 1 [ set pcolor 9.91 ] jump 1 ]
+
 
  end
 @#$#@#$#@
