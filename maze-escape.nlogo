@@ -117,14 +117,12 @@ to build-maze
       [ ;; ifelse any? paths --> path is empty
         ifelse length stack > 0
         [ ;; start the building process
-          let xy item 0 stack
+          setxy (item 0 (item 0 stack)) (item 1 (item 0 stack))
           ;; removing first element from stack
           set stack but-first stack
-          setxy (item 0 xy) (item 1 xy)
          ]
          [ stop ]
        ]
-      if length stack = 0 [ stop ]
     ] ;;close while
   ];; close ask builders
 end
@@ -151,8 +149,6 @@ to draw-move
   let start-spot patch-here
   ask start-spot [ ask patches in-radius 1 [ set pcolor 9.91 ] ]
   repeat spacing [ ask patches in-radius 1 [ set pcolor 9.91 ] jump 1 ]
-
-
  end
 @#$#@#$#@
 GRAPHICS-WINDOW
