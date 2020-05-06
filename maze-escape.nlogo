@@ -27,7 +27,6 @@ end
 ;; build orderd white tiles in the world according to the spacing (their distance)
 to build-tiles
   ask patches [set pcolor 4 ]
-
   set tiles patches with
   [ pxcor mod spacing = 0
     and pycor mod spacing = 0
@@ -75,8 +74,7 @@ to build-maze
     set stack []
   ]
   ask builders
-  [
-    ;; store starting point
+  [;; store starting point
     set stack fput ( list xcor ycor ) stack
     while [ length stack > 0 ]
     [ ;; in this while the maze building process
@@ -84,7 +82,6 @@ to build-maze
       let left-right 0
       let straight 0
       let running 0
-      let my-color 0
       let paths find-open-paths
       ifelse any? paths
       [ ;; ifelse any? paths --> paths is not-empty
@@ -145,7 +142,6 @@ end
 
 ;; draw move
 to draw-move
-  let my-color 9.91
   let start-spot patch-here
   ask start-spot [ ask patches in-radius 1 [ set pcolor 9.91 ] ]
   repeat spacing [ ask patches in-radius 1 [ set pcolor 9.91 ] jump 1 ]
