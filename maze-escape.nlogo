@@ -189,21 +189,29 @@ to set-entrance-exit
     set color orange
     set size 3
     if (pxcor = minx) [
-      ask one-of edge-nodes with [pxcor = maxx and exit? = true][
-        set exit? false set maze-exit true set color cyan
-        set size 3 set label-color black set label "exit"]]
+      let possible-exit one-of edge-nodes with [pxcor = maxx and exit? = true]
+      if possible-exit != nobody [
+        ask possible-exit [
+          set exit? false set maze-exit true set color cyan
+          set size 3 set label-color black set label "exit"]]]
     if (pxcor = maxx) [
-      ask one-of edge-nodes with [pxcor = minx and exit? = true][
-        set exit? false set maze-exit true set color cyan
-        set size 3 set label-color black set label "exit"]]]
+      let possible-exit one-of edge-nodes with [pxcor = minx and exit? = true]
+      if possible-exit != nobody [
+        ask possible-exit [
+          set exit? false set maze-exit true set color cyan
+          set size 3 set label-color black set label "exit"]]]
     if (pycor = miny) [
-      ask one-of edge-nodes with [pycor = maxy and exit? = true][
-        set exit? false set maze-exit true set color cyan
-        set size 3 set label-color black set label "exit"]]
+      let possible-exit one-of edge-nodes with [pycor = maxy and exit? = true]
+      if possible-exit != nobody [
+        ask possible-exit [
+          set exit? false set maze-exit true set color cyan
+          set size 3 set label-color black set label "exit"]]]
     if (pycor = maxy) [
-      ask one-of edge-nodes with [pycor = miny and exit? = true][
-        set exit? false set maze-exit true set color cyan set size 3
-        set label-color black set label "exit"]]
+      let possible-exit one-of edge-nodes with [pycor = miny and exit? = true]
+      if possible-exit != nobody [
+        ask possible-exit [
+          set exit? false set maze-exit true set color cyan set size 3
+          set label-color black set label "exit"]]]
   ]
 
 
