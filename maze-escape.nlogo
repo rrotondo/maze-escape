@@ -1,7 +1,7 @@
 ;; Maze Escape a simulation to escape from a maze
 ;; Written by Riccardo Rotondo (riccardo.rotondo@phd.unict.it)
 ;; NetLogo version 6.1.1
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; load network extensions
 extensions [Nw]
 
@@ -22,9 +22,11 @@ to setup
   build-tiles
   init-nodes
   build-maze
+  set-entrance-exit
 end
 
-;; build orderd white tiles in the world according to the spacing (their distance)
+;; build orderd white tiles in the world
+;; according to the spacing (their distance)
 to build-tiles
   ask patches [set pcolor 4 ]
   set tiles patches with
@@ -47,7 +49,7 @@ to init-nodes
   [
     sprout-nodes 1
     [
-       set color cyan
+       set color red
        set size 1
        set shape "circle"
        set node-id index
@@ -69,7 +71,7 @@ to build-maze
     set ycor [pycor] of start
     ;; set heading and color
     set heading 0
-    set color cyan
+    set color 9.91
     ask patches in-radius 1 [ set pcolor [color] of myself ]
     set stack []
   ]
@@ -109,7 +111,7 @@ to build-maze
           ]
         ]
         if (any? nodes-on patch-here)
-        [ask one-of nodes-on patch-here [create-link-with node1 [set color cyan]] ]
+        [ask one-of nodes-on patch-here [create-link-with node1 [set color red]] ]
        ]
       [ ;; ifelse any? paths --> path is empty
         ifelse length stack > 0
@@ -129,7 +131,8 @@ end
 to-report find-open-paths
   let paths
   ( patches at-points
-    (map [ [?1 ?2] -> (list (?1 * spacing ) (?2 * spacing) ) ] [ 0 0 1 -1 ] [1 -1 0 0 ])
+    (map [ [?1 ?2] ->
+      (list (?1 * spacing ) (?2 * spacing) ) ] [ 0 0 1 -1 ] [1 -1 0 0 ])
    ) with [ pcolor = white ]
   report paths
 end
@@ -146,28 +149,90 @@ to draw-move
   ask start-spot [ ask patches in-radius 1 [ set pcolor 9.91 ] ]
   repeat spacing [ ask patches in-radius 1 [ set pcolor 9.91 ] jump 1 ]
  end
+
+to set-entrance-exit
+  let minx min [xcor] of nodes
+  let miny min [ycor] of nodes
+  let maxx max [xcor] of nodes
+  let maxy max [ycor] of nodes
+
+  let edge-nodes nodes with [
+    pxcor = minx or pxcor = maxx or pycor = miny or pycor = maxy ]
+  ask edge-nodes
+  [
+    ;set color black
+    if (pxcor = minx and pycor = miny) [set corner? true]
+    if (pxcor = minx and pycor = maxy) [set corner? true]
+    if (pxcor = maxx and pycor = miny) [set corner? true]
+    if (pxcor = maxx and pycor = maxy) [set corner? true]
+  ]
+
+  ask nodes
+  [
+    let exit-found? false
+    ask patch-here
+    [
+       if (count neighbors with [pcolor = 4 ] = 5 ) [set exit-found? true]
+       if (count neighbors with [pcolor = 4 ] = 2
+        and count neighbors with [pcolor = 9.91] = 6 ) [
+        set exit-found? true]
+    ]
+    if exit-found? = true  [set color red set size 2 set exit? true]
+
+  ]
+
+  ask one-of edge-nodes with [exit? = true and corner? = false]
+  [
+    set maze-entrance true
+    set label-color black
+    set label "entrance"
+    set color orange
+    set size 3
+    if (pxcor = minx) [
+      ask one-of edge-nodes with [pxcor = maxx and exit? = true][
+        set exit? false set maze-exit true set color cyan
+        set size 3 set label-color black set label "exit"]]
+    if (pxcor = maxx) [
+      ask one-of edge-nodes with [pxcor = minx and exit? = true][
+        set exit? false set maze-exit true set color cyan
+        set size 3 set label-color black set label "exit"]]]
+    if (pycor = miny) [
+      ask one-of edge-nodes with [pycor = maxy and exit? = true][
+        set exit? false set maze-exit true set color cyan
+        set size 3 set label-color black set label "exit"]]
+    if (pycor = maxy) [
+      ask one-of edge-nodes with [pycor = miny and exit? = true][
+        set exit? false set maze-exit true set color cyan set size 3
+        set label-color black set label "exit"]]
+  ]
+
+
+
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 @#$#@#$#@
 GRAPHICS-WINDOW
-288
-47
-761
-521
+280
+53
+956
+512
 -1
 -1
-15.0
+2.663
 1
-10
-1
-1
-1
-0
+8
 1
 1
 1
 0
-30
 0
-30
+0
+1
+0
+250
+0
+168
 0
 0
 1
@@ -200,7 +265,7 @@ spacing
 spacing
 1
 20
-4.0
+20.0
 1
 1
 NIL
