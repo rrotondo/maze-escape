@@ -203,56 +203,72 @@ to set-entrance-exit
     set color orange
     set size 3
 
-    if pxcor = minx-exit
-    [ let possible-exit one-of edge-inout-nodes with [pxcor = maxx-exit]
+    (ifelse
+    pxcor = minx-exit
+    [ let possible-exit one-of edge-inout-nodes with [
+      pxcor = maxx-exit and label != "entrance"]
       ifelse possible-exit != nobody
-      [ ask possible-exit
-        [set exit? false set maze-exit true set color cyan
-          set size 3 set label-color black set label "exit"]]
-      [ while [possible-exit = nobody]
-        [ set possible-exit one-of inout-nodes with [label != "entrance"]]
-      ask possible-exit
-            [ set exit? false set maze-exit true set color cyan
-              set size 3 set label-color black set label "exit"]]]
-
-    if pxcor = maxx-exit
-      [ let possible-exit one-of edge-inout-nodes with [pxcor = minx-exit]
-        ifelse possible-exit != nobody
         [ ask possible-exit
           [ set exit? false set maze-exit true set color cyan
             set size 3 set label-color black set label "exit"]]
-      [ while [possible-exit = nobody]
-        [ set possible-exit one-of inout-nodes with [label != "entrance"]]
-          ask possible-exit
-            [ set exit? false set maze-exit true set color cyan
-              set size 3 set label-color black set label "exit"]]]
-
-    if pycor = miny-exit
-        [ let possible-exit one-of edge-inout-nodes with [pxcor = maxy-exit]
+        [ set possible-exit one-of inout-nodes with [label != "entrance"]
           ifelse possible-exit != nobody
-          [ ask possible-exit [
-            set exit? false set maze-exit true set color cyan
+          [ ask possible-exit
+            [ set exit? false set maze-exit true set color cyan
+              set size 3 set label-color black set label "exit"]]
+          [ output-print "Unable to find and entrance"
+            output-print "Check spacing or other parameters"]]]
+
+    pxcor = maxx-exit
+    [ let possible-exit one-of edge-inout-nodes with [
+      pxcor = maxx-exit and label != "entrance"]
+      ifelse possible-exit != nobody
+        [ ask possible-exit
+          [ set exit? false set maze-exit true set color cyan
             set size 3 set label-color black set label "exit"]]
-        [ while [possible-exit = nobody]
-            [ set possible-exit one-of inout-nodes with [label != "entrance"]]
-          ask possible-exit
-            [ set exit? false set maze-exit true set color cyan
-              set size 3 set label-color black set label "exit"]]]
-
-    if pycor = maxy-exit
-        [ let possible-exit one-of edge-inout-nodes with [pxcor = miny-exit]
+        [ set possible-exit one-of inout-nodes with [label != "entrance"]
           ifelse possible-exit != nobody
-          [ ask possible-exit [
-            set exit? false set maze-exit true set color cyan set size 3
-            set label-color black set label "exit"]]
-        [ while [possible-exit = nobody]
-            [ set possible-exit one-of inout-nodes with [label != "entrance"]]
-          ask possible-exit
+          [ ask possible-exit
             [ set exit? false set maze-exit true set color cyan
-              set size 3 set label-color black set label "exit"]]]
-    ]
+              set size 3 set label-color black set label "exit"]]
+          [ output-print "Unable to find and entrance"
+            output-print "Check spacing or other parameters"]]]
+
+    pycor = miny-exit
+    [ let possible-exit one-of edge-inout-nodes with [
+      pxcor = maxx-exit and label != "entrance"]
+      ifelse possible-exit != nobody
+        [ ask possible-exit
+          [ set exit? false set maze-exit true set color cyan
+            set size 3 set label-color black set label "exit"]]
+        [ set possible-exit one-of inout-nodes with [label != "entrance"]
+          ifelse possible-exit != nobody
+          [ ask possible-exit
+            [ set exit? false set maze-exit true set color cyan
+              set size 3 set label-color black set label "exit"]]
+          [ output-print "Unable to find and entrance"
+            output-print "Check spacing or other parameters"]]]
+
+    pycor = maxy-exit
+    [ let possible-exit one-of edge-inout-nodes with [
+      pxcor = maxx-exit and label != "entrance"]
+      ifelse possible-exit != nobody
+        [ ask possible-exit
+          [ set exit? false set maze-exit true set color cyan
+            set size 3 set label-color black set label "exit"]]
+        [ set possible-exit one-of inout-nodes with [label != "entrance"]
+          ifelse possible-exit != nobody
+          [ ask possible-exit
+            [ set exit? false set maze-exit true set color cyan
+              set size 3 set label-color black set label "exit"]]
+          [ output-print "Unable to find and entrance"
+            output-print "Check spacing or other parameters"]]]
+
+    )]
 
 end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 @#$#@#$#@
 GRAPHICS-WINDOW
 280
