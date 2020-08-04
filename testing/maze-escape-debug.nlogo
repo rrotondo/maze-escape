@@ -20,13 +20,21 @@ builders-own [stack running]
 ;; setup button
 to setup
   clear-all
+  reset-ticks
+  output-print "build-tiles"
   build-tiles
+  output-print "init-nodes"
   init-nodes
   ifelse debug [init-maze] [build-maze]
+  output-print "set-entrance-exit"
+  set-entrance-exit
+  output-print "end!"
+  output-print ticks
 end
 
 ;; build orderd white tiles in the world according to the spacing (their distance)
 to build-tiles
+  tick
   ask patches [set pcolor 4 ]
 
   set tiles patches with
@@ -238,28 +246,166 @@ to draw-move
   ask start-spot [ ask patches in-radius 1 [ set pcolor 9.91 ] ]
   repeat spacing [ ask patches in-radius 1 [ set pcolor 9.91 ] jump 1 ]
  end
+
+;; find maze entrance and exit
+to set-entrance-exit
+
+  let set-nodes-exit false
+  let minx min [xcor] of nodes
+  let miny min [ycor] of nodes
+  let maxx max [xcor] of nodes
+  let maxy max [ycor] of nodes
+
+  let edge-nodes nodes with [
+    pxcor = minx or pxcor = maxx or pycor = miny or pycor = maxy ]
+  ask edge-nodes
+  [
+    ;set color black
+    if (pxcor = minx and pycor = miny) [set corner? true]
+    if (pxcor = minx and pycor = maxy) [set corner? true]
+    if (pxcor = maxx and pycor = miny) [set corner? true]
+    if (pxcor = maxx and pycor = maxy) [set corner? true]
+  ]
+
+  ask nodes
+  [
+    let exit-found? false
+    ask patch-here
+    [
+       if (count neighbors with [pcolor = 4 ] = 5 ) [set exit-found? true]
+       if (count neighbors with [pcolor = 4 ] = 2
+        and count neighbors with [pcolor = 9.91] = 6 ) [
+        set exit-found? true]
+    ]
+    if exit-found? = true  [set color red set size 2 set exit? true]
+
+  ]
+  let minx-exit min [xcor] of nodes with [exit? = true]
+  let miny-exit min [ycor] of nodes with [exit? = true]
+  let maxx-exit max [xcor] of nodes with [exit? = true]
+  let maxy-exit max [ycor] of nodes with [exit? = true]
+
+  ; lets define two possible exit, one in the edge, the other even in the middle
+  let edge-inout-nodes edge-nodes with [exit? = true]
+  let inout-nodes nodes with [exit? = true]
+
+  output-print "searching for entrance"
+  let possible-entrance one-of edge-inout-nodes
+
+  if possible-entrance = nobody
+  [ while [possible-entrance = nobody]
+    [ set possible-entrance one-of inout-nodes]
+    output-print "finding entrance loop"
+    output-print possible-entrance
+    tick]
+  output-print "entrance-found"
+  output-print possible-entrance
+  output-print ticks
+  output-print "searching for exit"
+  ask possible-entrance
+  [ set maze-entrance true
+    set label-color black
+    set label "entrance"
+    set color orange
+    set size 3
+
+    if pxcor = minx-exit
+    [ output-print "minx-exit"
+      let possible-exit one-of edge-inout-nodes with [pxcor = maxx-exit]
+      ifelse possible-exit != nobody
+      [ ask possible-exit
+        [set exit? false set maze-exit true set color cyan
+          set size 3 set label-color black set label "exit"]]
+      [ while [possible-exit = nobody]
+        [ set possible-exit one-of inout-nodes with [label != "entrance"]
+;          output-print "finding minx-exit loop"
+;          output-print possible-exit]
+        ]
+      ask possible-exit
+            [ set exit? false set maze-exit true set color cyan
+              set size 3 set label-color black set label "exit"]]
+      output-print possible-exit]
+
+    if pxcor = maxx-exit
+    [ let possible-exit one-of edge-inout-nodes with [pxcor = minx-exit]
+      output-print "maxx-exit"
+      ifelse possible-exit != nobody
+      [ ask possible-exit
+        [ set exit? false set maze-exit true set color cyan
+          set size 3 set label-color black set label "exit"]]
+      [ while [possible-exit = nobody]
+        [ set possible-exit one-of inout-nodes with [label != "entrance"]
+;          output-print "finding maxx-exit loop"
+;          output-print possible-exit]
+        ]
+          ask possible-exit
+            [ set exit? false set maze-exit true set color cyan
+              set size 3 set label-color black set label "exit"]]
+     output-print possible-exit]
+
+    if pycor = miny-exit
+        [ output-print "miny-exit"
+          let possible-exit one-of edge-inout-nodes with [pxcor = maxy-exit]
+          ifelse possible-exit != nobody
+        [ ask possible-exit [
+            set exit? false set maze-exit true set color cyan
+            set size 3 set label-color black set label "exit"]]
+        [ while [possible-exit = nobody]
+            [ set possible-exit one-of inout-nodes with [label != "entrance"]
+;              output-print "finding miny-exit loop"
+;              output-print possible-exit]
+            ]
+          ask possible-exit
+            [ set exit? false set maze-exit true set color cyan
+              set size 3 set label-color black set label "exit"]]
+         output-print possible-exit]
+
+    if pycor = maxy-exit
+        [ output-print "maxy-exit"
+          let possible-exit one-of edge-inout-nodes with [pxcor = miny-exit]
+        ifelse possible-exit != nobody
+        [ ask possible-exit [
+            set exit? false set maze-exit true set color cyan set size 3
+            set label-color black set label "exit"]]
+        [ while [possible-exit = nobody]
+            [ set possible-exit one-of inout-nodes with [label != "entrance"]
+;              output-print "finding maxy-exit loop"
+;              output-print possible-exit]
+            ]
+          ask possible-exit
+            [ set exit? false set maze-exit true set color cyan
+              set size 3 set label-color black set label "exit"]]
+         output-print possible-exit]
+    ]
+
+  output-print "exit found"
+  output-print ticks
+
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 @#$#@#$#@
 GRAPHICS-WINDOW
-256
-10
-729
-484
+202
+15
+878
+474
 -1
 -1
-15.0
+2.663
 1
-10
-1
-1
-1
-0
+8
 1
 1
 1
 0
-30
 0
-30
+0
+1
+0
+250
+0
+168
 0
 0
 1
@@ -292,7 +438,7 @@ spacing
 spacing
 1
 20
-4.0
+20.0
 1
 1
 NIL
@@ -378,6 +524,68 @@ MONITOR
 630
 running
 [running] of builders
+17
+1
+11
+
+MONITOR
+533
+536
+590
+581
+minx
+min [xcor] of nodes
+17
+1
+11
+
+MONITOR
+589
+536
+646
+581
+miny
+min [ycor] of nodes
+17
+1
+11
+
+MONITOR
+533
+581
+590
+626
+maxx
+max [xcor] of nodes
+17
+1
+11
+
+MONITOR
+589
+581
+646
+626
+maxy
+max [ycor] of nodes
+17
+1
+11
+
+OUTPUT
+884
+18
+1124
+476
+13
+
+MONITOR
+678
+543
+819
+588
+edge-nodes
+nodes with [\n    pxcor = (min [xcor] of nodes) or\n    pxcor = (max [xcor] of nodes) or\n    pycor = (min [ycor] of nodes) or\n    pycor = (max [ycor] of nodes)]
 17
 1
 11
