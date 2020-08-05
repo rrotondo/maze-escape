@@ -12,9 +12,15 @@ globals
 
 breed [nodes node]
 breed [builders builder]
+breed [maze-runners mr]
+breed [hubs-labeling hl]
+breed [contraction-hierarchies ch]
 
 nodes-own [node-id maze-entrance maze-exit exit?  corner?]
 builders-own [stack]
+maze-runners-own [current-node]
+hubs-labeling-own [last-node path]
+contraction-hierarchies-own [hubs path]
 
 ;; setup button
 to setup
@@ -23,6 +29,7 @@ to setup
   init-nodes
   build-maze
   set-entrance-exit
+  setup-runners
 end
 
 ;; build orderd white tiles in the world
@@ -123,6 +130,7 @@ to build-maze
          [ stop ]
        ]
     ] ;;close while
+    die
   ];; close ask builders
 end
 
@@ -268,13 +276,24 @@ to set-entrance-exit
 
 end
 
+;; setup maze runners
+to setup-runners
+  ask one-of nodes with [label = "entrance"]
+  [ let here self
+    ask patch-here
+    [ sprout-maze-runners 1
+      [ set size 3
+        set color sky
+        set current-node here ]]]
+end
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 @#$#@#$#@
 GRAPHICS-WINDOW
-280
-53
-956
-512
+278
+56
+954
+515
 -1
 -1
 2.663
