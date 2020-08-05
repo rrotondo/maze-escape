@@ -18,7 +18,7 @@ breed [contraction-hierarchies ch]
 
 nodes-own [node-id maze-entrance maze-exit exit?  corner?]
 builders-own [stack]
-maze-runners-own [current-node]
+maze-runners-own [current-node next-node]
 hubs-labeling-own [last-node path]
 contraction-hierarchies-own [hubs path]
 
@@ -30,6 +30,10 @@ to setup
   build-maze
   set-entrance-exit
   setup-runners
+end
+
+to go
+  move-runners
 end
 
 ;; build orderd white tiles in the world
@@ -279,12 +283,51 @@ end
 ;; setup maze runners
 to setup-runners
   ask one-of nodes with [label = "entrance"]
-  [ let here self
+  [ let present-node self
+    let future-node self
+    ifelse present-node = [end1] of one-of my-links
+    [ set future-node [end2] of one-of my-links ]
+    [ set future-node [end1] of one-of my-links ]
     ask patch-here
     [ sprout-maze-runners 1
       [ set size 3
-        set color sky
-        set current-node here ]]]
+        set color yellow
+        set current-node present-node
+        set next-node future-node
+        set heading mr-direction current-node next-node
+  ]]]
+end
+
+to-report mr-direction [present-node future-node]
+  let lh 45
+  ifelse [label] of present-node = "entrance"
+  [ ask present-node
+    [ ask one-of my-links
+     [ ifelse present-node = end1
+       [ set lh link-heading ]
+       [ set lh link-heading + 180 ]
+  ] ] ]
+  [ print "bye" ]
+  report lh
+
+end
+
+to move-runners
+  ask maze-runners
+  [
+    set heading first [end1] of first [my-out-links] of nodes-here
+    print [node-id] of first [end1] of first [my-out-links] of nodes-here
+
+    ]
+
+
+   ;ask current-node
+    ;[ print count link-neighbors ]
+;    ask nodes-here
+;    [ print node-id ]
+;    print count nodes in-radius 1]
+
+
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -355,6 +398,23 @@ BUTTON
 113
 Reset
 clear-all
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+129
+30
+200
+71
+GO
+go
 NIL
 1
 T
