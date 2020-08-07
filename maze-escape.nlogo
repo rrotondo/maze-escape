@@ -9,7 +9,9 @@ globals
 [
   tiles
   ;; hubs-lapeling: list of path indexed by hub
-  hubs-lab
+  hubs-lab-green
+  hubs-lab-orange
+  hubs-lab-red
   ;; contraction hierarchies
   list-hubs
 
@@ -23,7 +25,7 @@ breed [maze-runners mr]
 
 nodes-own [node-id maze-entrance maze-exit exit?  corner?]
 builders-own [stack]
-maze-runners-own [current-node next-node]
+maze-runners-own [prev-node current-node next-node]
 ;hubs-labeling-own [list-node]
 ;contraction-hierarchies-own [list-hub]
 
@@ -34,7 +36,7 @@ to setup
   init-nodes
   build-maze
   set-entrance-exit
-  setup-runners
+  setup-maze-runners
 end
 
 to go
@@ -285,22 +287,24 @@ to set-entrance-exit
 end
 
 ;; setup maze runners
-to setup-runners
-  set hubs-lab []
+to setup-maze-runners
+  set hubs-lab-green []
+  set hubs-lab-orange []
+  set hubs-lab-red []
   set list-hubs []
   ask one-of nodes with [label = "entrance"]
   [ let present-node self
-    let future-node self
-    ifelse present-node = [end1] of one-of my-links
-    [ set future-node [end2] of one-of my-links ]
-    [ set future-node [end1] of one-of my-links ]
+;    let future-node self
+;    ifelse present-node = [end1] of one-of my-links
+;    [ set future-node [end2] of one-of my-links ]
+;    [ set future-node [end1] of one-of my-links ]
     ask patch-here
     [ sprout-maze-runners 1
       [ set size 3
         set color yellow
         set current-node present-node
-        set next-node future-node
-        set heading report-mr-direction current-node next-node
+;        set next-node future-node
+;        set heading report-mr-direction current-node next-node
   ]]]
 end
 
@@ -318,10 +322,6 @@ to-report report-mr-direction [mr-current-node mr-next-node]
 
 end
 
-to-report mr-forward [mr-direction mr-current-node mr-next-node]
-  let speed 0
-  ;ifelse mr-direction =
-end
 
 ;to create-hl [n1 n2]
 ;  print n1
@@ -356,31 +356,36 @@ to maze-runners-action
 
   ask maze-runners
   [
-    let n1 current-node
-    let n2 next-node
-    ;print [who] of current-node
-    (ifelse
-      [color] of link [who] of current-node [who] of next-node = black
+    ifelse [label] of current-node = "entrance"
+    [
+      ifelse current-node = [end1] of one-of [my-links] of current-node
+      [ set next-node [end2] of one-of [my-links] of current-node ]
+      [ set next-node [end1] of one-of [my-links] of current-node ]
+      set heading report-mr-direction current-node next-node
+      ifelse [color] of link [who] of current-node [who] of next-node = black
       [
-        ifelse [label] of current-node = "entrance"
-        [
-          fd [link-length] of link [who] of current-node [who] of next-node
-          ask link [who] of current-node [who] of next-node [set color green]
-          ask next-node [set color green]
-          set hubs-lab lput current-node hubs-lab
-          set hubs-lab lput link [who] of current-node [who] of next-node hubs-lab
-          ;ask patch-here [create-hl n1 n2]
-        ]
-        [ print "ciao" ]
-
+        set hubs-lab-green lput current-node hubs-lab-green
+        set hubs-lab-green lput
+          link [who] of current-node [who] of next-node hubs-lab-green
+        ask link [who] of current-node [who] of next-node [set color green]
+        ;; action that could go in a routine
+        forward-maze-runner
       ]
-     )
-
+      [
+        forward-maze-runner
+      ]
+    ]
+    [
+      print "to be defined"
+    ]
   ]
 
+end
 
-
-
+to forward-maze-runner
+  fd [link-length] of link [who] of current-node [who] of next-node
+  set prev-node current-node
+  set current-node next-node
 end
 
 
@@ -446,10 +451,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-51
-72
-129
-113
+48
+114
+126
+155
 Reset
 clear-all
 NIL
@@ -469,6 +474,23 @@ BUTTON
 71
 GO
 go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+50
+72
+215
+105
+NIL
+maze-runners-action
 NIL
 1
 T
