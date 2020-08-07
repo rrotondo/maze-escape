@@ -8,19 +8,24 @@ extensions [Nw]
 globals
 [
   tiles
+  ;; hubs-lapeling: list of path indexed by hub
+  hubs-lab
+  ;; contraction hierarchies
+  list-hubs
+
 ]
 
 breed [nodes node]
 breed [builders builder]
 breed [maze-runners mr]
-breed [hubs-labeling hl]
-breed [contraction-hierarchies ch]
+;breed [hubs-labeling hl]
+;breed [contraction-hierarchies ch]
 
 nodes-own [node-id maze-entrance maze-exit exit?  corner?]
 builders-own [stack]
 maze-runners-own [current-node next-node]
-hubs-labeling-own [last-node path]
-contraction-hierarchies-own [hubs path]
+;hubs-labeling-own [list-node]
+;contraction-hierarchies-own [list-hub]
 
 ;; setup button
 to setup
@@ -33,7 +38,7 @@ to setup
 end
 
 to go
-  move-runners
+  maze-runners-action
 end
 
 ;; build orderd white tiles in the world
@@ -137,7 +142,6 @@ to build-maze
     die
   ];; close ask builders
 end
-
 
 ;; find open path
 to-report find-open-paths
@@ -282,6 +286,8 @@ end
 
 ;; setup maze runners
 to setup-runners
+  set hubs-lab []
+  set list-hubs []
   ask one-of nodes with [label = "entrance"]
   [ let present-node self
     let future-node self
@@ -294,16 +300,16 @@ to setup-runners
         set color yellow
         set current-node present-node
         set next-node future-node
-        set heading mr-direction current-node next-node
+        set heading report-mr-direction current-node next-node
   ]]]
 end
 
-to-report mr-direction [present-node future-node]
+to-report report-mr-direction [mr-current-node mr-next-node]
   let lh 45
-  ifelse [label] of present-node = "entrance"
-  [ ask present-node
+  ifelse [label] of mr-current-node = "entrance"
+  [ ask mr-current-node
     [ ask one-of my-links
-     [ ifelse present-node = end1
+     [ ifelse mr-current-node = end1
        [ set lh link-heading ]
        [ set lh link-heading + 180 ]
   ] ] ]
@@ -312,23 +318,71 @@ to-report mr-direction [present-node future-node]
 
 end
 
-to move-runners
+to-report mr-forward [mr-direction mr-current-node mr-next-node]
+  let speed 0
+  ;ifelse mr-direction =
+end
+
+;to create-hl [n1 n2]
+;  print n1
+;  print n2
+;  sprout-hubs-labeling 1
+;  [
+;    ;set list-node [[who] of n1 [who] of n2]
+;    ;set list-node lput 4 list-node
+;    ;set list-node lput n2 list-node
+;    set hidden? true
+;  ]
+;end
+
+;; add a link n1 n2 to the hub labeling list
+;to update-hl [n1 n2]
+;  let new-hl one-of hubs-labeling with [member? n1 list-node]
+;  ifelse new-hl = nobody
+;  [ ;;n1 isn't there, add both to the hub labelling list
+;    sprout-hubs-labeling 1
+;    [
+;      set list-node lput n1 list-node
+;      set list-node lput n2 list-node
+;      set hidden? true
+;    ]]
+;  ;;n1 is there let's add only n2
+;  [ ask new-hl [set list-node lput n2 list-node ]]
+;end
+
+
+
+to maze-runners-action
+
   ask maze-runners
   [
-    set heading first [end1] of first [my-out-links] of nodes-here
-    print [node-id] of first [end1] of first [my-out-links] of nodes-here
+    let n1 current-node
+    let n2 next-node
+    ;print [who] of current-node
+    (ifelse
+      [color] of link [who] of current-node [who] of next-node = black
+      [
+        ifelse [label] of current-node = "entrance"
+        [
+          fd [link-length] of link [who] of current-node [who] of next-node
+          ask link [who] of current-node [who] of next-node [set color green]
+          ask next-node [set color green]
+          set hubs-lab lput current-node hubs-lab
+          set hubs-lab lput link [who] of current-node [who] of next-node hubs-lab
+          ;ask patch-here [create-hl n1 n2]
+        ]
+        [ print "ciao" ]
 
-    ]
+      ]
+     )
+
+  ]
 
 
-   ;ask current-node
-    ;[ print count link-neighbors ]
-;    ask nodes-here
-;    [ print node-id ]
-;    print count nodes in-radius 1]
 
 
 end
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 @#$#@#$#@
