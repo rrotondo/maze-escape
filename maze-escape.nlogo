@@ -357,26 +357,99 @@ to maze-runners-action
   ask maze-runners
   [
     ifelse [label] of current-node = "entrance"
-    [
+    [ ;; current-node is entrance
       ifelse current-node = [end1] of one-of [my-links] of current-node
       [ set next-node [end2] of one-of [my-links] of current-node ]
       [ set next-node [end1] of one-of [my-links] of current-node ]
       set heading report-mr-direction current-node next-node
       ifelse [color] of link [who] of current-node [who] of next-node = black
-      [
+      [ ;; next path is black
         set hubs-lab-green lput current-node hubs-lab-green
         set hubs-lab-green lput
           link [who] of current-node [who] of next-node hubs-lab-green
         ask link [who] of current-node [who] of next-node [set color green]
         ;; action that could go in a routine
         forward-maze-runner
+        ;set prev-node current-node
+        ;set current-node next-node
       ]
-      [
+      [ ;; next path is NOT black
         forward-maze-runner
+        ;set prev-node current-node
+        ;set current-node next-node
       ]
     ]
-    [
-      print "to be defined"
+    [ ;; current-node is NOT entrance
+      ifelse [color] of link [who] of prev-node [who] of current-node = green
+      [ ;; previous path is green
+        ifelse count [my-links] of current-node > 2
+        [ ;; node is a hub
+          let next-path search-link green current-node prev-node
+          show next-path
+          ifelse next-path != nobody
+          [ ;; next path is green
+            forward-maze-runner
+            set prev-node current-node
+            set current-node next-node
+          ]
+          [ ;; next path is NOT green
+            set next-path search-link black current-node prev-node
+            show next-path
+            ifelse next-path != nobody
+            [ ;; next path is black
+              ifelse current-node = [end1] of next-path
+               [ set next-node [end2] of next-path ]
+               [ set next-node [end1] of next-path ]
+              ifelse [exit?] of next-node = true
+              [ ;; there is a blind spot ahead
+                ifelse [maze-exit] of next-node = true
+                [ ;; exit found
+                  ask next-path [set color green]
+                  stop]
+                [ ;;exit NOT found
+                  ask next-path [set color red]
+                  update-list
+                  go-back]
+              ]
+              [ ;; there is NOT a blind spot ahead
+                set hubs-lab-orange lput current-node hubs-lab-orange
+                set hubs-lab-orange lput
+                link [who] of current-node [who] of next-node hubs-lab-orange
+                ask link [who] of current-node [who] of next-node [
+                  set color orange]
+                ;; action that could go in a routine
+                forward-maze-runner
+              ]
+            ]
+            [ ;; next path is NOT black
+              set next-path one-of [my-links] of current-node with
+                [color = orange and other-end != prev-node]
+              ifelse next-path != nobody
+              [ ;; next path is orange
+                forward-maze-runner
+                set prev-node current-node
+                set current-node next-node
+              ]
+              [ ;; next path is NOT orange
+                set next-path one-of [my-links] of current-node with
+                  [color = red and other-end != prev-node]
+              ]
+              ifelse next-path != nobody
+              [ ;;next-path is red
+                go-back]
+              [ ;;next-path is NOT red
+               print "next path is not black,green,orange and red, error!"
+              ]
+            ]
+          ]
+        ]
+        [ ;; node is NOT a hub
+          print "to be defined"
+        ]
+      ]
+      [
+        print "to be defined"
+      ]
     ]
   ]
 
@@ -388,6 +461,33 @@ to forward-maze-runner
   set current-node next-node
 end
 
+to update-list
+  print "to be defined"
+end
+
+to go-back
+  print "to be defined"
+end
+
+to-report new-green-link [mr-current-node mr-prev-node]
+
+  let green-link nobody
+  ask mr-current-node
+  [ set green-link one-of (my-links with [color = green and other-end != mr-prev-node]) ]
+  report green-link
+
+end
+
+to-report search-link [link-color mr-current-node mr-prev-node]
+
+  let new-link nobody
+  ask mr-current-node
+  [ set new-link one-of
+    (my-links with [color = link-color and other-end != mr-prev-node])
+  ]
+  report new-link
+
+end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 @#$#@#$#@
