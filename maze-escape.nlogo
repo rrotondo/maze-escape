@@ -129,7 +129,7 @@ to build-maze
           ]
         ]
         if (any? nodes-on patch-here)
-        [ask one-of nodes-on patch-here [create-link-with node1 [set color black]] ]
+        [ask one-of nodes-on patch-here [create-link-to node1 [set color black]] ]
        ]
       [ ;; ifelse any? paths --> path is empty
         ifelse length stack > 0
@@ -294,17 +294,11 @@ to setup-maze-runners
   set list-hubs []
   ask one-of nodes with [label = "entrance"]
   [ let present-node self
-;    let future-node self
-;    ifelse present-node = [end1] of one-of my-links
-;    [ set future-node [end2] of one-of my-links ]
-;    [ set future-node [end1] of one-of my-links ]
     ask patch-here
     [ sprout-maze-runners 1
       [ set size 3
         set color yellow
         set current-node present-node
-;        set next-node future-node
-;        set heading report-mr-direction current-node next-node
   ]]]
 end
 
@@ -321,36 +315,6 @@ to-report report-mr-direction [mr-current-node mr-next-node]
   report lh
 
 end
-
-
-;to create-hl [n1 n2]
-;  print n1
-;  print n2
-;  sprout-hubs-labeling 1
-;  [
-;    ;set list-node [[who] of n1 [who] of n2]
-;    ;set list-node lput 4 list-node
-;    ;set list-node lput n2 list-node
-;    set hidden? true
-;  ]
-;end
-
-;; add a link n1 n2 to the hub labeling list
-;to update-hl [n1 n2]
-;  let new-hl one-of hubs-labeling with [member? n1 list-node]
-;  ifelse new-hl = nobody
-;  [ ;;n1 isn't there, add both to the hub labelling list
-;    sprout-hubs-labeling 1
-;    [
-;      set list-node lput n1 list-node
-;      set list-node lput n2 list-node
-;      set hidden? true
-;    ]]
-;  ;;n1 is there let's add only n2
-;  [ ask new-hl [set list-node lput n2 list-node ]]
-;end
-
-
 
 to maze-runners-action
 
@@ -469,14 +433,6 @@ to go-back
   print "to be defined"
 end
 
-to-report new-green-link [mr-current-node mr-prev-node]
-
-  let green-link nobody
-  ask mr-current-node
-  [ set green-link one-of (my-links with [color = green and other-end != mr-prev-node]) ]
-  report green-link
-
-end
 
 to-report search-link [link-color mr-current-node mr-prev-node]
 
