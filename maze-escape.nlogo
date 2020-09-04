@@ -8,11 +8,14 @@ extensions [Nw]
 globals
 [
   tiles
-  ;; hubs-lapeling: list of path indexed by hub
+  ;; hubs-labeling: list of path indexed by hub
+  ;; list of green link
   hubs-lab-green
+  ;; list of orange link indexed by hub
   hubs-lab-orange
   hubs-lab-red
   ;; contraction hierarchies
+  ;; list of couple hub, index in hubs-lab-orange
   list-hubs
 
 ]
@@ -25,7 +28,7 @@ breed [maze-runners mr]
 
 nodes-own [node-id maze-entrance maze-exit exit?  corner?]
 builders-own [stack]
-maze-runners-own [prev-node current-node next-node]
+maze-runners-own [prev-node current-node next-node last-visited-hub]
 ;hubs-labeling-own [list-node]
 ;contraction-hierarchies-own [list-hub]
 
@@ -344,8 +347,7 @@ to maze-runners-action
       [ ;; previous path is green
         ifelse count [my-links] of current-node > 2
         [ ;; node is a hub
-          if (not member? current-node list-hubs)
-          [ set list-hubs lput current-node list-hubs]
+          found-new-hub
           let next-path search-link green current-node prev-node
           show next-path
           ifelse next-path != nobody
@@ -357,67 +359,9 @@ to maze-runners-action
             forward-maze-runner
 
           ]
-          [ ;; next path is NOT green
-            set next-path search-link black current-node prev-node
-            show next-path
-            ifelse next-path != nobody
-            [ ;; next path is black
-              ifelse current-node = [end1] of next-path
-               [ set next-node [end2] of next-path ]
-               [ set next-node [end1] of next-path
-                 change-link-direction
-               ]
-              ifelse [exit?] of next-node = true
-              [ ;; there is a blind spot ahead
-                ifelse [maze-exit] of next-node = true
-                [ ;; exit found
-                  ask next-path [set color green]
-                  stop]
-                [ ;;exit NOT found
-                  color-link-red next-path
-                  if (count [my-links] of current-node < 2)
-                  [ ;; if node is not an hub we need to set all the previous path red to the next path
-                    update-list
-                    go-back]
-                ]
-              ]
-              [ ;; there is NOT a blind spot ahead
-                ifelse only-one-not-red? current-node prev-node
-                [;; all next paths are red
-                  color-link-green
-                  forward-maze-runner
-
-                ]
-                [;; NOT all next paths are red
-                  color-link-orange
-                  set heading report-mr-direction current-node next-node
-                  forward-maze-runner
-                ]
-              ]
-            ]
-            [ ;; next path is NOT black
-              set next-path one-of [my-links] of current-node with
-                [color = orange and other-end != prev-node]
-              ifelse next-path != nobody
-              [ ;; next path is orange
-                forward-maze-runner
-
-              ]
-              [ ;; next path is NOT orange
-                set next-path one-of [my-links] of current-node with
-                  [color = red and other-end != prev-node]
-              ]
-              ifelse next-path != nobody
-              [ ;;next-path is red
-                go-back]
-              [ ;;next-path is NOT red
-               print "next path is not black,green,orange and red, error!"
-              ]
-            ]
-          ]
+          [discover-unknown-hub]
         ]
         [ ;; node is NOT a hub
-          print "node is NOT a hub"
           let next-path search-link black current-node prev-node
             ifelse next-path != nobody
             [ ;; next path is black
@@ -434,9 +378,37 @@ to maze-runners-action
         ]
       ]
       [ ;; previous path is NOT green
-        print "to be defined when previous path is not green"
+        ifelse [color] of link [who] of prev-node [who] of current-node = orange
+        [ ;; previous path is orange
+          ifelse count [my-links] of current-node > 2
+          [ ;; node is a hub
+            found-new-hub
+            discover-unknown-hub
+          ]
+          [;; node is NOT a hub
+            let next-path search-link black current-node prev-node
+          ifelse next-path != nobody
+          [ ;; next path is black
+            ifelse current-node = [end1] of next-path
+              [ set next-node [end2] of next-path ]
+              [ set next-node [end1] of next-path
+                change-link-direction
+              ]
+            set heading report-mr-direction current-node next-node
+            color-link-orange
+            forward-maze-runner
+          ]
+          [print "previous orange next not black not defined"]
+          ]
+        ]
+        [print "to be defined when previous path is not green and orange"]
+
       ]
     ]
+    if ([maze-exit] of next-node = true)
+    [ ;; exit found
+      print "to be defined exit found"
+      stop]
   ]
 
 end
@@ -485,7 +457,6 @@ to-report only-one-not-red? [mr-current-node mr-prev-node]
 end
 
 to color-link-green
-  set hubs-lab-green lput current-node hubs-lab-green
   set hubs-lab-green lput
     link [who] of current-node [who] of next-node hubs-lab-green
   ask link [who] of current-node [who] of next-node
@@ -493,7 +464,6 @@ to color-link-green
 end
 
 to color-link-orange
-  set hubs-lab-orange lput current-node hubs-lab-orange
   set hubs-lab-orange lput
     link [who] of current-node [who] of next-node hubs-lab-orange
   ask link [who] of current-node [who] of next-node [set color orange]
@@ -506,6 +476,78 @@ to color-link-red [next-path]
   set hubs-lab-red lput
     link [who] of current-node [who] of next-node hubs-lab-red
 end
+
+to discover-unknown-hub
+;; next path is NOT green
+  let next-path search-link black current-node prev-node
+  ifelse next-path != nobody
+  [ ;; next path is black
+    print "next path is"
+    show next-path
+    ifelse current-node = [end1] of next-path
+    [ set next-node [end2] of next-path ]
+    [ set next-node [end1] of next-path
+      change-link-direction
+      set next-path link [who] of current-node [who] of next-node
+    ]
+    ifelse [exit?] of next-node = true
+    [ ;; there is a blind spot ahead
+      ifelse [maze-exit] of next-node = true
+      [ ;; exit found
+        ask next-path [set color green]
+        stop]
+      [ ;;exit NOT found
+        print "let's color red next path"
+        show next-path
+        color-link-red next-path
+        if (count [my-links] of current-node < 2)
+        [ ;; if node is not an hub we need to set all the previous path red to the next path
+          update-list
+          go-back]
+        ]
+     ]
+     [ ;; there is NOT a blind spot ahead
+       ifelse only-one-not-red? current-node prev-node
+       [ ;;all next paths are red
+         color-link-green
+         forward-maze-runner
+       ]
+       [ ;; NOT all next paths are red
+         color-link-orange
+         set heading report-mr-direction current-node next-node
+         forward-maze-runner
+       ]
+     ]
+   ]
+   [ ;; next path is NOT black
+     set next-path one-of [my-links] of current-node with
+       [color = orange and other-end != prev-node]
+     ifelse next-path != nobody
+     [;; next path is orange
+        forward-maze-runner
+     ]
+     [ ;; next path is NOT orange
+       set next-path one-of [my-links] of current-node with
+         [color = red and other-end != prev-node]
+     ]
+     ifelse next-path != nobody
+     [ ;;next-path is red
+       go-back]
+     [ ;;next-path is NOT red
+       print "next path is not black,green,orange and red, error!"
+     ]
+   ]
+end
+
+to found-new-hub
+  if (not member? current-node list-hubs)
+  [ ;; insert hub in a list with the index in hubs-lab-orange
+    set list-hubs lput current-node list-hubs
+    set list-hubs lput length hubs-lab-orange list-hubs
+  ]
+  set last-visited-hub current-node
+end
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 @#$#@#$#@
