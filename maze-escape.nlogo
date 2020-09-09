@@ -466,7 +466,6 @@ end
 
 
 to-report search-link [link-color]
-
   let new-link nobody
   let temp-prev-node prev-node
   ask current-node
@@ -474,7 +473,6 @@ to-report search-link [link-color]
     (my-links with [color = link-color and other-end != temp-prev-node])
   ]
   report new-link
-
 end
 
 to-report only-one-not-red? [mr-current-node mr-prev-node]
@@ -529,10 +527,21 @@ to discover-unknown-hub
     ifelse next-path != nobody
     [ ;; next path is black
       if debug [print "next path is black"]
-      ifelse current-node = [end1] of next-path
-      [set next-node [end2] of next-path][set next-node [end1] of next-path]
-      color-link-yellow
-      forward-maze-runner
+      ifelse one-black-others-red?
+      [ ;;one next-path is red and all others red
+        if debug [print "one next-path is black and all others red"]
+        set visited-hubs remove last visited-hubs visited-hubs
+        ifelse current-node = [end1] of next-path
+        [set next-node [end2] of next-path][set next-node [end1] of next-path]
+        color-link-green
+        forward-maze-runner
+      ]
+      [ ;; more next-path black
+        ifelse current-node = [end1] of next-path
+        [set next-node [end2] of next-path][set next-node [end1] of next-path]
+        color-link-yellow
+        forward-maze-runner
+      ]
     ]
     [ ;; next path is NOT black
       print "discover-uknown-hub next-path is NOT black"
@@ -551,14 +560,30 @@ to found-new-hub
   set visited-hubs lput current-node visited-hubs
 end
 
+to-report one-black-others-red?
+  let temp-prev-node prev-node
+  let count-next-path 0
+  let count-next-path-black 0
+  let count-next-path-red 0
+  ask current-node
+  [
+    set count-next-path count my-links with [other-end != temp-prev-node]
+    set count-next-path-black count my-links with [other-end != temp-prev-node and color = black]
+    set count-next-path-red count my-links with [other-end != temp-prev-node and color = red]
+  ]
+  ifelse (count-next-path-black = 1) and
+         (count-next-path = count-next-path-black + count-next-path-red )
+  [ report true ][report false]
+
+end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 @#$#@#$#@
 GRAPHICS-WINDOW
-278
-56
-954
-515
+275
+10
+951
+469
 -1
 -1
 2.663
@@ -582,10 +607,10 @@ ticks
 30.0
 
 BUTTON
+48
+10
+126
 51
-30
-129
-71
 Setup
 setup
 NIL
@@ -599,10 +624,10 @@ NIL
 1
 
 SLIDER
-52
-164
-173
-197
+49
+144
+170
+177
 spacing
 spacing
 1
@@ -614,10 +639,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-51
-113
-129
-154
+48
+93
+126
+134
 Reset
 clear-all
 NIL
@@ -631,10 +656,10 @@ NIL
 1
 
 BUTTON
-129
-30
-200
-71
+126
+10
+197
+51
 GO
 go
 NIL
@@ -648,10 +673,10 @@ NIL
 1
 
 BUTTON
-50
-72
-215
-105
+47
+52
+212
+85
 NIL
 maze-runners-action
 NIL
@@ -665,10 +690,10 @@ NIL
 1
 
 SWITCH
-52
-197
-173
-230
+49
+177
+170
+210
 debug
 debug
 0
