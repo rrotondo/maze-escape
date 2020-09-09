@@ -300,7 +300,7 @@ to setup-maze-runners
   [ let present-node self
     ask patch-here
     [ sprout-maze-runners 1
-      [ set size 3
+      [ set size 5
         set color sky
         set current-node present-node
         set visited-nodes []
@@ -342,8 +342,7 @@ to maze-runners-action
           stop]
         [ ;;exit NOT found
           color-link-red
-          print "exit NOT found color all path red to be defined"
-
+          go-back
         ]
       ]
       [ ;; current node is NOT a blind spot
@@ -453,24 +452,16 @@ to update-list
   print "update-list be defined"
 end
 
-to go-backyellowyellow
-  print "go-back"
-  ifelse prev-node = current-node
-  [print "prev-node and current-node the same"]
-  [
-;    let prev-path search-link  prev-node current-node
-;    ifelse prev-path != nobody
-;    [ ;;prev-path is
-;      ask link [who] of prev-node [who] of current-node [set color red]
-;;      set heading (report-mr-direction prev-node current-node) - 180
-;      backward-maze-runner
-;    ]
-;    [
-;      print "prev-path another color"
-;    ]
-
-
-  ]
+to go-back
+  if debug [print "go-back"]
+  set current-node last visited-nodes
+  set visited-nodes remove current-node visited-nodes
+  set prev-node last visited-nodes
+;  set prev-node item (length visited-nodes - 2) visited-nodes
+  set xcor [xcor] of current-node
+  set ycor [ycor] of current-node
+  set next-path link [who] of prev-node [who] of current-node
+  set heading report-mr-direction + 180
 end
 
 
@@ -512,7 +503,8 @@ end
 
 to color-link-red
   let last-node last visited-nodes
-  let before-last-node item (position last-node visited-nodes - 1) visited-nodes
+  let before-last-node item (length visited-nodes - 2) visited-nodes
+
   while [last-node != last visited-hubs]
   [
     ask link [who] of last-node [who] of before-last-node [set color red]
