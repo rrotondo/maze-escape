@@ -385,7 +385,7 @@ to maze-runners-action
         [ ;; previous path is NOT green
           ifelse [color] of link [who] of prev-node [who] of current-node = yellow
           [ ;; previous path is yellow
-            if debug [print "previous-path is yellow"]
+            if debug [print "prev-path is yellow"]
             ifelse count [my-links] of current-node > 2
             [ ;; node is a hub
               if debug [print "node is hub"]
@@ -527,7 +527,7 @@ to discover-unknown-hub
     ifelse next-path != nobody
     [ ;; next path is black
       if debug [print "next path is black"]
-      ifelse one-black-others-red?
+      ifelse found-best-path?
       [ ;;one next-path is red and all others red
         if debug [print "one next-path is black and all others red"]
         set visited-hubs remove last visited-hubs visited-hubs
@@ -560,19 +560,20 @@ to found-new-hub
   set visited-hubs lput current-node visited-hubs
 end
 
-to-report one-black-others-red?
+to-report found-best-path?
   let temp-prev-node prev-node
-  let count-next-path 0
+  let count-prev-path-green 0
   let count-next-path-black 0
   let count-next-path-red 0
   ask current-node
   [
-    set count-next-path count my-links with [other-end != temp-prev-node]
+    set count-prev-path-green count my-links with [color = green]
     set count-next-path-black count my-links with [other-end != temp-prev-node and color = black]
     set count-next-path-red count my-links with [other-end != temp-prev-node and color = red]
   ]
   ifelse (count-next-path-black = 1) and
-         (count-next-path = count-next-path-black + count-next-path-red )
+         (count my-links = count-prev-path-green +
+                           count-next-path-black + count-next-path-red )
   [ report true ][report false]
 
 end
