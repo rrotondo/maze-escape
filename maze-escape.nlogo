@@ -231,13 +231,13 @@ to set-entrance-exit
       pxcor = maxx-exit and label != "entrance"]
       ifelse possible-exit != nobody
         [ ask possible-exit
-          [ set exit? false set maze-exit true set color green
-            set size 3 set label-color black set label "exit"]]
+          [ set maze-exit true set color green set size 3
+            set label-color black set label "exit"]]
         [ set possible-exit one-of inout-nodes with [label != "entrance"]
           ifelse possible-exit != nobody
           [ ask possible-exit
-            [ set exit? false set maze-exit true set color green
-              set size 3 set label-color black set label "exit"]]
+            [ set maze-exit true set color green set size 3
+              set label-color black set label "exit"]]
           [ output-print "Unable to find and entrance"
             output-print "Check spacing or other parameters"]]]
 
@@ -246,13 +246,13 @@ to set-entrance-exit
       pxcor = maxx-exit and label != "entrance"]
       ifelse possible-exit != nobody
         [ ask possible-exit
-          [ set exit? false set maze-exit true set color green
-            set size 3 set label-color black set label "exit"]]
+          [ set maze-exit true set color green set size 3
+              set label-color black set label "exit"]]
         [ set possible-exit one-of inout-nodes with [label != "entrance"]
           ifelse possible-exit != nobody
           [ ask possible-exit
-            [ set exit? false set maze-exit true set color green
-              set size 3 set label-color black set label "exit"]]
+            [ set maze-exit true set color green set size 3
+              set label-color black set label "exit"]]
           [ output-print "Unable to find and entrance"
             output-print "Check spacing or other parameters"]]]
 
@@ -261,13 +261,13 @@ to set-entrance-exit
       pxcor = maxx-exit and label != "entrance"]
       ifelse possible-exit != nobody
         [ ask possible-exit
-          [ set exit? false set maze-exit true set color green
-            set size 3 set label-color black set label "exit"]]
+          [ set maze-exit true set color green set size 3
+            set label-color black set label "exit"]]
         [ set possible-exit one-of inout-nodes with [label != "entrance"]
           ifelse possible-exit != nobody
           [ ask possible-exit
-            [ set exit? false set maze-exit true set color green
-              set size 3 set label-color black set label "exit"]]
+            [ set maze-exit true set color green set size 3
+              set label-color black set label "exit"]]
           [ output-print "Unable to find and entrance"
             output-print "Check spacing or other parameters"]]]
 
@@ -276,20 +276,19 @@ to set-entrance-exit
       pxcor = maxx-exit and label != "entrance"]
       ifelse possible-exit != nobody
         [ ask possible-exit
-          [ set exit? false set maze-exit true set color cyan
-            set size 3 set label-color black set label "exit"]]
+          [ set maze-exit true set color green set size 3
+              set label-color black set label "exit"]]
         [ set possible-exit one-of inout-nodes with [label != "entrance"]
           ifelse possible-exit != nobody
           [ ask possible-exit
-            [ set exit? false set maze-exit true set color green
-              set size 3 set label-color black set label "exit"]]
+            [ set maze-exit true set color green set size 3
+              set label-color black set label "exit"]]
           [ output-print "Unable to find and entrance"
             output-print "Check spacing or other parameters"]]]
 
     )]
-
 end
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; setup maze runners
 to setup-maze-runners
   set hubs-lab-green []
