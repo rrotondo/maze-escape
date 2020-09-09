@@ -10,14 +10,13 @@ globals
   tiles
   ;; hubs-labeling: list of path indexed by hub
   ;; list of green link
-  hubs-lab-green
+;  hubs-lab-green
   ;; list of yellow link indexed by hub
-  hubs-lab-yellow
-  hubs-lab-red
+;  hubs-lab-yellow
+;  hubs-lab-red
   ;; contraction hierarchies
   ;; list of couple hub, index in hubs-lab-yellow
-  list-hubs
-
+;  list-hubs
 ]
 
 breed [nodes node]
@@ -291,10 +290,10 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; setup maze runners
 to setup-maze-runners
-  set hubs-lab-green []
-  set hubs-lab-yellow []
-  set hubs-lab-red []
-  set list-hubs []
+;  set hubs-lab-green []
+;  set hubs-lab-yellow []
+;  set hubs-lab-red []
+;  set list-hubs []
   ask one-of nodes with [label = "entrance"]
   [ let present-node self
     ask patch-here
@@ -485,15 +484,15 @@ to-report only-one-not-red? [mr-current-node mr-prev-node]
 end
 
 to color-link-green
-  set hubs-lab-green lput
-    link [who] of current-node [who] of next-node hubs-lab-green
+;  set hubs-lab-green lput
+;    link [who] of current-node [who] of next-node hubs-lab-green
   ask link [who] of current-node [who] of next-node
     [set color green set thickness 1]
 end
 
 to color-link-yellow
-  set hubs-lab-yellow lput
-    link [who] of current-node [who] of next-node hubs-lab-yellow
+;  set hubs-lab-yellow lput
+;    link [who] of current-node [who] of next-node hubs-lab-yellow
   ask link [who] of current-node [who] of next-node [set color yellow]
 
 end
@@ -501,7 +500,6 @@ end
 to color-link-red
   let last-node last visited-nodes
   let before-last-node item (length visited-nodes - 2) visited-nodes
-
   while [last-node != last visited-hubs]
   [
     ask link [who] of last-node [who] of before-last-node [set color red]
@@ -551,11 +549,11 @@ end
 
 to found-new-hub
   if debug [print "found new hub"]
-  if (not member? current-node list-hubs)
-  [ ;; insert hub in a list with the index in hubs-lab-yellow
-    set list-hubs lput current-node list-hubs
-    set list-hubs lput length hubs-lab-yellow list-hubs
-  ]
+;  if (not member? current-node list-hubs)
+;  [ ;; insert hub in a list with the index in hubs-lab-yellow
+;    set list-hubs lput current-node list-hubs
+;    set list-hubs lput length hubs-lab-yellow list-hubs
+;  ]
   set visited-hubs lput current-node visited-hubs
 end
 
