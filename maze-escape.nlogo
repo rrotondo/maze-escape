@@ -558,18 +558,32 @@ to found-new-hub
 end
 
 to-report found-best-path?
+  if debug [print "search for best bath"]
   let temp-prev-node prev-node
   let count-prev-path-green 0
   let count-next-path-black 0
   let count-next-path-red 0
+  let total-path 0
   ask current-node
   [
     set count-prev-path-green count my-links with [color = green]
     set count-next-path-black count my-links with [other-end != temp-prev-node and color = black]
     set count-next-path-red count my-links with [other-end != temp-prev-node and color = red]
+    set total-path count my-links
+  ]
+  if debug
+  [
+    print "count-prev-path-green"
+    show count-prev-path-green
+    print "count-next-path-black"
+    show count-next-path-black
+    print "count-next-path-red"
+    show count-next-path-red
+    print "total links"
+    show total-path
   ]
   ifelse (count-next-path-black = 1) and
-         (count my-links = count-prev-path-green +
+         (total-path = count-prev-path-green +
                            count-next-path-black + count-next-path-red )
   [ report true ][report false]
 
