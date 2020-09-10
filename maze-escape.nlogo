@@ -454,6 +454,7 @@ to go-back
   if debug >= 1 [print "go-back"]
   set current-node last visited-nodes
   set visited-nodes remove current-node visited-nodes
+  set visited-hubs remove current-node visited-hubs
   set prev-node last visited-nodes
 ;  set prev-node item (length visited-nodes - 2) visited-nodes
   set xcor [xcor] of current-node
@@ -500,9 +501,25 @@ end
 to color-link-red
   let last-node last visited-nodes
   let before-last-node item (length visited-nodes - 2) visited-nodes
+  if last-node = last visited-hubs
+  [ ;;this happens when mr is in a hub and all branch are red
+    ;;in order to go back we need to remove the last visited-hubs
+    set visited-hubs remove last visited-hubs visited-hubs
+  ]
+  if debug >= 2
+  [
+    print "last visited hub"
+    print last visited-hubs
+    print "last-node in visited-nodes"
+    print last-node
+    print "before-last-node in visited-nodes"
+    print before-last-node
+    print "link color red:"
+  ]
   while [last-node != last visited-hubs]
   [
     ask link [who] of last-node [who] of before-last-node [set color red]
+    if debug >= 2 [print link [who] of last-node [who] of before-last-node]
     set visited-nodes remove last-node visited-nodes
     set last-node last visited-nodes
     set before-last-node
@@ -540,8 +557,25 @@ to discover-unknown-hub
         forward-maze-runner
       ]
     ]
-    [ ;; next path is NOT black
-      print "discover-uknown-hub next-path is NOT black"
+    [ ;; there are not next path black
+      set next-path search-link yellow
+      ifelse next-path != nobody
+      [ ;; next-path is yellow
+        if debug >= 1 [print "next-path is yellow"]
+        forward-maze-runner
+      ]
+      [ ;; there are not next path yellow
+        set next-path search-link red
+        ifelse next-path != nobody
+        [ ;; next-path is red
+          if debug >= 1 [print "there are only red path"]
+          color-link-red
+          go-back
+        ]
+        [ ;; next-path is NOT red]
+          print "Error, this scenario shoult not happen"
+        ]
+      ]
     ]
   ]
 
