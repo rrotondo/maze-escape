@@ -315,11 +315,11 @@ to maze-runners-action
     set visited-nodes lput current-node visited-nodes
     ifelse [label] of current-node = "entrance"
     [ ;; current-node is entrance
-      if debug [print "current node is entrance"]
+      if debug >= 1 [print "current node is entrance"]
       set next-path one-of [my-links] of current-node
       ifelse [color] of next-path = black
       [ ;;next path black
-        if debug [print "next path is black"]
+        if debug >= 1 [print "next path is black"]
         ifelse current-node = [end1] of next-path
         [set next-node [end2] of next-path] [set next-node [end1] of next-path]
         color-link-green
@@ -330,10 +330,10 @@ to maze-runners-action
       ]
     ]
     [ ;; current-node is NOT entrance
-;      if debug [print "current node is NOT entrance"]
+;      if debug >= 1 [print "current node is NOT entrance"]
       ifelse [exit?] of current-node = true
       [ ;; current node is a blind spot, could be an exit
-        if debug [print "current node is a blind spot"]
+        if debug >= 1 [print "current node is a blind spot"]
         ifelse [maze-exit] of current-node = true
         [ ;; exit found
           print "exit found color all path green to be defined"
@@ -344,18 +344,18 @@ to maze-runners-action
         ]
       ]
       [ ;; current node is NOT a blind spot
-;        if debug [print "current node NOT is entrance"]
+;        if debug >= 1 [print "current node NOT is entrance"]
         ifelse [color] of link [who] of prev-node [who] of current-node = green
         [ ;; previous path is green
-          if debug [print "previous path is green"]
+          if debug >= 1 [print "previous path is green"]
           ifelse count [my-links] of current-node > 2
           [ ;; node is a hub
-            if debug [print "node is a hub"]
+            if debug >= 1 [print "node is a hub"]
             found-new-hub
             set next-path search-link green
             ifelse next-path != nobody
             [ ;; next path is green
-              if debug [print "next path is green"]
+              if debug >= 1 [print "next path is green"]
               ifelse current-node = [end1] of next-path
               [set next-node [end2] of next-path]
               [set next-node [end1] of next-path]
@@ -369,7 +369,7 @@ to maze-runners-action
             set next-path search-link black
               ifelse next-path != nobody
               [ ;; next path is black
-              if debug [print "next-path is black"]
+              if debug >= 1 [print "next-path is black"]
                 ifelse current-node = [end1] of next-path
                  [ set next-node [end2] of next-path ]
                  [ set next-node [end1] of next-path ]
@@ -383,10 +383,10 @@ to maze-runners-action
         [ ;; previous path is NOT green
           ifelse [color] of link [who] of prev-node [who] of current-node = yellow
           [ ;; previous path is yellow
-            if debug [print "prev-path is yellow"]
+            if debug >= 1 [print "prev-path is yellow"]
             ifelse count [my-links] of current-node > 2
             [ ;; node is a hub
-              if debug [print "node is hub"]
+              if debug >= 1 [print "node is hub"]
               found-new-hub
               discover-unknown-hub
             ]
@@ -432,7 +432,7 @@ to-report report-mr-direction
 end
 
 to forward-maze-runner
-  if debug [print "forward"]
+  if debug >= 1 [print "forward"]
   set heading report-mr-direction
   fd [link-length] of link [who] of current-node [who] of next-node
   set prev-node current-node
@@ -451,7 +451,7 @@ to update-list
 end
 
 to go-back
-  if debug [print "go-back"]
+  if debug >= 1 [print "go-back"]
   set current-node last visited-nodes
   set visited-nodes remove current-node visited-nodes
   set prev-node last visited-nodes
@@ -512,21 +512,21 @@ end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 to discover-unknown-hub
-  if debug [print "discovery new hub"]
+  if debug >= 1 [print "discovery new hub"]
   set next-path search-link green
   ifelse next-path != nobody
   [ ;;next path is green
-    if debug [print "next-path is green"]
+    if debug >= 1 [print "next-path is green"]
     forward-maze-runner
   ]
   [ ;; next path is NOT green
     set next-path search-link black
     ifelse next-path != nobody
     [ ;; next path is black
-      if debug [print "next path is black"]
+      if debug >= 1 [print "next path is black"]
       ifelse found-best-path?
       [ ;;one next-path is red and all others red
-        if debug [print "one next-path is black and all others red"]
+        if debug >= 1 [print "one next-path is black and all others red"]
         set visited-hubs remove last visited-hubs visited-hubs
         ifelse current-node = [end1] of next-path
         [set next-node [end2] of next-path][set next-node [end1] of next-path]
@@ -548,7 +548,7 @@ to discover-unknown-hub
 end
 
 to found-new-hub
-  if debug [print "found new hub"]
+  if debug >= 1 [print "found new hub"]
 ;  if (not member? current-node list-hubs)
 ;  [ ;; insert hub in a list with the index in hubs-lab-yellow
 ;    set list-hubs lput current-node list-hubs
@@ -558,7 +558,7 @@ to found-new-hub
 end
 
 to-report found-best-path?
-  if debug [print "search for best bath"]
+  if debug >= 1 [print "search for best bath"]
   let temp-prev-node prev-node
   let count-prev-path-green 0
   let count-next-path-black 0
@@ -571,7 +571,7 @@ to-report found-best-path?
     set count-next-path-red count my-links with [other-end != temp-prev-node and color = red]
     set total-path count my-links
   ]
-  if debug
+  if debug >= 2
   [
     print "count-prev-path-green"
     show count-prev-path-green
@@ -701,7 +701,7 @@ NIL
 NIL
 1
 
-SWITCH
+SLIDER
 49
 177
 170
@@ -709,8 +709,12 @@ SWITCH
 debug
 debug
 0
+2
+2.0
 1
--1000
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
