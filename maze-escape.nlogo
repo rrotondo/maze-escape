@@ -336,7 +336,8 @@ to maze-runners-action
         if debug >= 1 [print "current node is a blind spot"]
         ifelse [maze-exit] of current-node = true
         [ ;; exit found
-          print "exit found color all path green to be defined"
+          if [color] of next-path != green [color-best-path]
+          if debug >= 1 [print "exit found"]
           stop]
         [ ;;exit NOT found
           color-link-red
@@ -474,16 +475,6 @@ to-report search-link [link-color]
   report new-link
 end
 
-to-report only-one-not-red? [mr-current-node mr-prev-node]
-  let node-red 0
-  ask mr-current-node
-  [
-    set node-red count ([my-links] of mr-current-node)
-    with [color != red and other-end != mr-prev-node]
-  ]
-  ifelse node-red = 1 [report true][report false]
-end
-
 to color-link-green
 ;  set hubs-lab-green lput
 ;    link [who] of current-node [who] of next-node hubs-lab-green
@@ -508,6 +499,7 @@ to color-link-red
   ]
   if debug >= 2
   [
+    print "color-link-red"
     print "last visited hub"
     print last visited-hubs
     print "last-node in visited-nodes"
@@ -526,6 +518,38 @@ to color-link-red
       item (position last-node visited-nodes - 1) visited-nodes
   ]
 end
+
+to color-best-path
+  let last-node last visited-nodes
+  let before-last-node item (length visited-nodes - 2) visited-nodes
+  if last-node = last visited-hubs
+  [ ;;this happens when mr is in a hub and all branch are red
+    ;;in order to go back we need to remove the last visited-hubs
+    set visited-hubs remove last visited-hubs visited-hubs
+  ]
+  if debug >= 2
+  [
+    print "color-best-path"
+    print "last visited hub"
+    print last visited-hubs
+    print "last-node in visited-nodes"
+    print last-node
+    print "before-last-node in visited-nodes"
+    print before-last-node
+    print "link color red:"
+  ]
+  while [last-node != first visited-hubs]
+  [
+    ask link [who] of last-node [who] of before-last-node
+    [set color green set thickness 1]
+    if debug >= 2 [print link [who] of last-node [who] of before-last-node]
+    set visited-nodes remove last-node visited-nodes
+    set last-node last visited-nodes
+    set before-last-node
+      item (position last-node visited-nodes - 1) visited-nodes
+  ]
+end
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 to discover-unknown-hub
@@ -744,7 +768,7 @@ debug
 debug
 0
 2
-2.0
+1.0
 1
 1
 NIL
