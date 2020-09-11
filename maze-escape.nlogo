@@ -1,36 +1,28 @@
 ;; Maze Escape a simulation to escape from a maze
 ;; Written by Riccardo Rotondo (riccardo.rotondo@phd.unict.it)
 ;; NetLogo version 6.1.1
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;line to keep code in 80 columns;;;;;;;;;;;;;;;;;;;;;;;;
 ;; load network extensions
 extensions [Nw]
 
+;; defining global variables
 globals
 [
   tiles
-  ;; hubs-labeling: list of path indexed by hub
-  ;; list of green link
-;  hubs-lab-green
-  ;; list of yellow link indexed by hub
-;  hubs-lab-yellow
-;  hubs-lab-red
-  ;; contraction hierarchies
-  ;; list of couple hub, index in hubs-lab-yellow
-;  list-hubs
 ]
 
+;; defining breeds
 breed [nodes node]
 breed [builders builder]
 breed [maze-runners mr]
-;breed [hubs-labeling hl]
-;breed [contraction-hierarchies ch]
 
+;; defining breeds variable
 nodes-own [node-id maze-entrance maze-exit exit? corner?]
 builders-own [stack]
 maze-runners-own [prev-node current-node next-node next-path visited-nodes
                   visited-hubs I-found-exit?]
-;hubs-labeling-own [list-node]
-;contraction-hierarchies-own [list-hub]
+
+;; all functions defined here
 
 ;; setup button
 to setup
@@ -40,10 +32,6 @@ to setup
   build-maze
   set-entrance-exit
   setup-maze-runners
-end
-
-to go
-  find-exit
 end
 
 ;; build orderd white tiles in the world
@@ -59,7 +47,6 @@ to build-tiles
     and abs pycor - spacing > min-pycor
   ]
   ask tiles [ set pcolor white ]
-
 end
 
 ;; Init nodes of given color,size and shape on each nodes
@@ -83,6 +70,8 @@ to init-nodes
   ]
 end
 
+;;;;;;;;;;;;;;;;;;;;;;;;line to keep code in 80 columns;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;; Build maze
 to build-maze
   create-builders  1
@@ -97,7 +86,7 @@ to build-maze
     set stack []
   ]
   ask builders
-  [;; store starting point
+  [ ;; store starting point
     set stack fput ( list xcor ycor ) stack
     while [ length stack > 0 ]
     [ ;; in this while the maze building process
@@ -132,7 +121,8 @@ to build-maze
           ]
         ]
         if (any? nodes-on patch-here)
-        [ask one-of nodes-on patch-here [create-link-with node1 [set color black]] ]
+        [ask one-of nodes-on patch-here
+          [create-link-with node1 [set color black]]]
        ]
       [ ;; ifelse any? paths --> path is empty
         ifelse length stack > 0
@@ -148,28 +138,14 @@ to build-maze
   ];; close ask builders
 end
 
-;; find open path
-to-report find-open-paths
-  let paths
-  ( patches at-points
-    (map [ [?1 ?2] ->
-      (list (?1 * spacing ) (?2 * spacing) ) ] [ 0 0 1 -1 ] [1 -1 0 0 ])
-   ) with [ pcolor = white ]
-  report paths
-end
-
-;; check if path is open
-to-report is-open
-  [ a-patch ]
-   report ([pcolor] of a-patch = white)
-end
-
 ;; draw move
 to draw-move
   let start-spot patch-here
   ask start-spot [ ask patches in-radius 1 [ set pcolor 9.91 ] ]
   repeat spacing [ ask patches in-radius 1 [ set pcolor 9.91 ] jump 1 ]
  end
+
+;;;;;;;;;;;;;;;;;;;;;;;;line to keep code in 80 columns;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; find maze entrance and exit
 to set-entrance-exit
@@ -179,7 +155,6 @@ to set-entrance-exit
   let miny min [ycor] of nodes
   let maxx max [xcor] of nodes
   let maxy max [ycor] of nodes
-
   let edge-nodes nodes with [
     pxcor = minx or pxcor = maxx or pycor = miny or pycor = maxy ]
   ask edge-nodes
@@ -190,7 +165,6 @@ to set-entrance-exit
     if (pxcor = maxx and pycor = miny) [set corner? true]
     if (pxcor = maxx and pycor = maxy) [set corner? true]
   ]
-
   ask nodes
   [
     let exit-found? false
@@ -202,21 +176,21 @@ to set-entrance-exit
         set exit-found? true]
     ]
     if exit-found? = true  [set color black set size 2 set exit? true]
-
   ]
   let minx-exit min [xcor] of nodes with [exit? = true]
   let miny-exit min [ycor] of nodes with [exit? = true]
   let maxx-exit max [xcor] of nodes with [exit? = true]
   let maxy-exit max [ycor] of nodes with [exit? = true]
-
-  ; lets define two possible exit, one in the edge, the other even in the middle
+  ;; lets define two possible exit, one in the edge, the other even in the
+  ;; middle
   let edge-inout-nodes edge-nodes with [exit? = true]
   let inout-nodes nodes with [exit? = true]
   let possible-entrance one-of edge-inout-nodes
 
   if possible-entrance = nobody
   [ while [possible-entrance = nobody]
-    [ set possible-entrance one-of inout-nodes]]
+    [ set possible-entrance one-of inout-nodes]
+  ]
   ask possible-entrance
   [ set maze-entrance true
     set label-color black
@@ -226,74 +200,122 @@ to set-entrance-exit
 
     (ifelse
     pxcor = minx-exit
-    [ let possible-exit one-of edge-inout-nodes with [
-      pxcor = maxx-exit and label != "entrance"]
+    [
+      let possible-exit one-of edge-inout-nodes with
+        [pxcor = maxx-exit and label != "entrance"]
       ifelse possible-exit != nobody
-        [ ask possible-exit
-          [ set maze-exit true set color green set size 3
-            set label-color black set label "exit"]]
-        [ set possible-exit one-of inout-nodes with [label != "entrance"]
+        [
+          ask possible-exit
+          [
+            set maze-exit true set color green set size 3
+            set label-color black set label "exit"
+          ]
+        ]
+        [
+          set possible-exit one-of inout-nodes with [label != "entrance"]
           ifelse possible-exit != nobody
-          [ ask possible-exit
-            [ set maze-exit true set color green set size 3
-              set label-color black set label "exit"]]
-          [ output-print "Unable to find and entrance"
-            output-print "Check spacing or other parameters"]]]
+          [
+            ask possible-exit
+            [
+              set maze-exit true set color green set size 3
+              set label-color black set label "exit"
+            ]
+          ]
+          [
+            print "Unable to find and entrance"
+            print "Check spacing or other parameters"
+          ]
+        ]
+      ]
 
     pxcor = maxx-exit
-    [ let possible-exit one-of edge-inout-nodes with [
-      pxcor = maxx-exit and label != "entrance"]
+    [ let possible-exit one-of edge-inout-nodes with
+        [pxcor = maxx-exit and label != "entrance"]
       ifelse possible-exit != nobody
         [ ask possible-exit
           [ set maze-exit true set color green set size 3
-              set label-color black set label "exit"]]
+              set label-color black set label "exit"
+          ]
+        ]
         [ set possible-exit one-of inout-nodes with [label != "entrance"]
           ifelse possible-exit != nobody
-          [ ask possible-exit
-            [ set maze-exit true set color green set size 3
-              set label-color black set label "exit"]]
-          [ output-print "Unable to find and entrance"
-            output-print "Check spacing or other parameters"]]]
+          [
+            ask possible-exit
+            [
+              set maze-exit true set color green set size 3
+              set label-color black set label "exit"
+            ]
+          ]
+          [
+            print "Unable to find and entrance"
+            print "Check spacing or other parameters"
+          ]
+        ]
+      ]
 
     pycor = miny-exit
-    [ let possible-exit one-of edge-inout-nodes with [
-      pxcor = maxx-exit and label != "entrance"]
+    [
+        let possible-exit one-of edge-inout-nodes with
+          [pxcor = maxx-exit and label != "entrance"]
       ifelse possible-exit != nobody
-        [ ask possible-exit
-          [ set maze-exit true set color green set size 3
-            set label-color black set label "exit"]]
+        [
+          ask possible-exit
+          [
+            set maze-exit true set color green set size 3
+            set label-color black set label "exit"
+          ]
+        ]
         [ set possible-exit one-of inout-nodes with [label != "entrance"]
           ifelse possible-exit != nobody
-          [ ask possible-exit
-            [ set maze-exit true set color green set size 3
-              set label-color black set label "exit"]]
-          [ output-print "Unable to find and entrance"
-            output-print "Check spacing or other parameters"]]]
+          [
+            ask possible-exit
+            [
+              set maze-exit true set color green set size 3
+              set label-color black set label "exit"
+            ]
+          ]
+          [
+            print "Unable to find and entrance"
+            print "Check spacing or other parameters"
+          ]
+        ]
+      ]
 
     pycor = maxy-exit
-    [ let possible-exit one-of edge-inout-nodes with [
-      pxcor = maxx-exit and label != "entrance"]
+    [
+      let possible-exit one-of edge-inout-nodes with
+        [pxcor = maxx-exit and label != "entrance"]
       ifelse possible-exit != nobody
-        [ ask possible-exit
-          [ set maze-exit true set color green set size 3
-              set label-color black set label "exit"]]
-        [ set possible-exit one-of inout-nodes with [label != "entrance"]
+        [
+          ask possible-exit
+          [
+            set maze-exit true set color green set size 3
+            set label-color black set label "exit"
+          ]
+        ]
+        [
+          set possible-exit one-of inout-nodes with [label != "entrance"]
           ifelse possible-exit != nobody
-          [ ask possible-exit
-            [ set maze-exit true set color green set size 3
-              set label-color black set label "exit"]]
-          [ output-print "Unable to find and entrance"
-            output-print "Check spacing or other parameters"]]]
-
-    )]
+          [
+            ask possible-exit
+            [
+              set maze-exit true set color green set size 3
+              set label-color black set label "exit"
+            ]
+          ]
+          [ print "Unable to find and entrance"
+            print "Check spacing or other parameters"
+          ]
+        ]
+      ]
+    )
+  ]
 end
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;line to keep code in 80 columns;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;; setup maze runners
 to setup-maze-runners
-;  set hubs-lab-green []
-;  set hubs-lab-yellow []
-;  set hubs-lab-red []
-;  set list-hubs []
   ask one-of nodes with [label = "entrance"]
   [ let present-node self
     ask patch-here
@@ -309,7 +331,7 @@ to setup-maze-runners
   ]
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;line to keep code in 80 columns;;;;;;;;;;;;;;;;;;;;;;;;
 
 to find-exit
 
@@ -350,7 +372,8 @@ to find-exit
       ]
       [ ;; current node is NOT a blind spot
 ;        if debug >= 1 [print "current node NOT is entrance"]
-        ifelse [color] of link [who] of prev-node [who] of current-node = green
+        ifelse [color] of link [who] of prev-node
+                               [who] of current-node = green
         [ ;; previous path is green
           if debug >= 1 [print "previous path is green"]
           ifelse count [my-links] of current-node > 2
@@ -365,12 +388,11 @@ to find-exit
               [set next-node [end2] of next-path]
               [set next-node [end1] of next-path]
               forward-maze-runner
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;line to keep code in 80 columns;;;;;;;;;;;;;;;;;;;;;;;;
             ]
             [discover-unknown-hub]
           ]
           [ ;; node is NOT a hub
-;            if debub [print "node is not a hub"]
             set next-path search-link black
               ifelse next-path != nobody
               [ ;; next path is black
@@ -378,11 +400,10 @@ to find-exit
                 ifelse current-node = [end1] of next-path
                  [ set next-node [end2] of next-path ]
                  [ set next-node [end1] of next-path ]
-;                set heading report-mr-direction current-node next-node
                 color-link-green
                 forward-maze-runner
              ]
-            [print "next-path shoubl"]
+            [print "next-path not black after green not defined"]
           ]
         ]
         [ ;; previous path is NOT green
@@ -410,7 +431,7 @@ to find-exit
               ]
             ]
           ]
-          [print "to be defined when previous path is not green and yellow"]
+          [print "previous path is not green and yellow not defines"]
         ]
     ]
    ]
@@ -419,33 +440,7 @@ to find-exit
 
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-to-report mr-found-exit?
-  let a-mr-found-exit? false
-  let mr-on-exit one-of maze-runners with [I-found-exit? = true]
-  if mr-on-exit != nobody [set a-mr-found-exit? true]
-  report a-mr-found-exit?
-end
-
-to-report report-mr-direction
-  let lh 45
-  ifelse current-node = [end1] of next-path
-  [set lh [link-heading] of next-path][set lh
-    [link-heading] of next-path + 180]
-;  ifelse [label] of mr-current-node = "entrance"
-;  [ ask mr-current-node
-;    [ ask one-of my-links
-;     [ ifelse mr-current-node = end1
-;       [ set lh link-heading ]
-;       [ set lh link-heading + 180 ]
-;  ] ] ]
-;  [ ask link [who] of mr-current-node [who] of mr-next-node
-;   [ set lh link-heading]
-;  ]
-  report lh
-
-end
+;;;;;;;;;;;;;;;;;;;;;;;;line to keep code in 80 columns;;;;;;;;;;;;;;;;;;;;;;;;
 
 to forward-maze-runner
   if debug >= 1 [print "forward"]
@@ -455,53 +450,25 @@ to forward-maze-runner
   set current-node next-node
 end
 
-to backward-maze-runner
-  print "backward"
-  fd [link-length] of link [who] of prev-node [who] of next-node
-  set current-node prev-node
-
-end
-
-to update-list
-  print "update-list be defined"
-end
-
 to go-back
   if debug >= 1 [print "go-back"]
   set current-node last visited-nodes
   set visited-nodes remove current-node visited-nodes
   set visited-hubs remove current-node visited-hubs
   set prev-node last visited-nodes
-;  set prev-node item (length visited-nodes - 2) visited-nodes
   set xcor [xcor] of current-node
   set ycor [ycor] of current-node
   set next-path link [who] of prev-node [who] of current-node
   set heading report-mr-direction + 180
 end
 
-
-to-report search-link [link-color]
-  let new-link nobody
-  let temp-prev-node prev-node
-  ask current-node
-  [ set new-link one-of
-    (my-links with [color = link-color and other-end != temp-prev-node])
-  ]
-  report new-link
-end
-
 to color-link-green
-;  set hubs-lab-green lput
-;    link [who] of current-node [who] of next-node hubs-lab-green
   ask link [who] of current-node [who] of next-node
     [set color green set thickness 1]
 end
 
 to color-link-yellow
-;  set hubs-lab-yellow lput
-;    link [who] of current-node [who] of next-node hubs-lab-yellow
   ask link [who] of current-node [who] of next-node [set color yellow]
-
 end
 
 to color-link-red
@@ -537,11 +504,6 @@ end
 to color-best-path
   let last-node last visited-nodes
   let before-last-node item (length visited-nodes - 2) visited-nodes
-  if last-node = last visited-hubs
-  [ ;;this happens when mr is in a hub and all branch are red
-    ;;in order to go back we need to remove the last visited-hubs
-    set visited-hubs remove last visited-hubs visited-hubs
-  ]
   if debug >= 2
   [
     print "color-best-path"
@@ -565,7 +527,7 @@ to color-best-path
   ]
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;line to keep code in 80 columns;;;;;;;;;;;;;;;;;;;;;;;;
 
 to discover-unknown-hub
   if debug >= 1 [print "discovery new hub"]
@@ -612,22 +574,53 @@ to discover-unknown-hub
           go-back
         ]
         [ ;; next-path is NOT red]
-          print "Error, this scenario shoult not happen"
+          print "Error, this scenario should not happen"
         ]
       ]
     ]
   ]
-
 end
 
 to found-new-hub
   if debug >= 1 [print "found new hub"]
-;  if (not member? current-node list-hubs)
-;  [ ;; insert hub in a list with the index in hubs-lab-yellow
-;    set list-hubs lput current-node list-hubs
-;    set list-hubs lput length hubs-lab-yellow list-hubs
-;  ]
   set visited-hubs lput current-node visited-hubs
+end
+
+;; all to-report functions defined here
+
+;; find open path
+to-report find-open-paths
+  let paths
+  ( patches at-points
+    (map [ [?1 ?2] ->
+      (list (?1 * spacing ) (?2 * spacing) ) ] [ 0 0 1 -1 ] [1 -1 0 0 ])
+   ) with [ pcolor = white ]
+  report paths
+end
+
+;; check if path is open
+to-report is-open
+  [ a-patch ]
+   report ([pcolor] of a-patch = white)
+end
+
+to-report report-mr-direction
+  let lh 45
+  ifelse current-node = [end1] of next-path
+  [set lh [link-heading] of next-path][set lh
+    [link-heading] of next-path + 180]
+  report lh
+
+end
+
+to-report search-link [link-color]
+  let new-link nobody
+  let temp-prev-node prev-node
+  ask current-node
+  [ set new-link one-of
+    (my-links with [color = link-color and other-end != temp-prev-node])
+  ]
+  report new-link
 end
 
 to-report found-best-path?
@@ -659,10 +652,16 @@ to-report found-best-path?
          (total-path = count-prev-path-green +
                            count-next-path-black + count-next-path-red )
   [ report true ][report false]
-
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+to-report mr-found-exit?
+  let a-mr-found-exit? false
+  let mr-on-exit one-of maze-runners with [I-found-exit? = true]
+  if mr-on-exit != nobody [set a-mr-found-exit? true]
+  report a-mr-found-exit?
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;line to keep code in 80 columns;;;;;;;;;;;;;;;;;;;;;;;;
 @#$#@#$#@
 GRAPHICS-WINDOW
 275
@@ -783,7 +782,7 @@ debug
 debug
 0
 2
-2.0
+0.0
 1
 1
 NIL
