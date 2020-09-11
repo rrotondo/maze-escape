@@ -25,10 +25,10 @@ breed [maze-runners mr]
 ;breed [hubs-labeling hl]
 ;breed [contraction-hierarchies ch]
 
-nodes-own [node-id maze-entrance maze-exit exit?  corner?]
+nodes-own [node-id maze-entrance maze-exit exit? corner?]
 builders-own [stack]
 maze-runners-own [prev-node current-node next-node next-path visited-nodes
-                  visited-hubs]
+                  visited-hubs I-found-exit?]
 ;hubs-labeling-own [list-node]
 ;contraction-hierarchies-own [list-hub]
 
@@ -43,7 +43,7 @@ to setup
 end
 
 to go
-  maze-runners-action
+  find-exit
 end
 
 ;; build orderd white tiles in the world
@@ -303,12 +303,15 @@ to setup-maze-runners
         set current-node present-node
         set visited-nodes []
         set visited-hubs []
-  ]]]
+        set I-found-exit? false
+      ]
+    ]
+  ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-to maze-runners-action
+to find-exit
 
   ask maze-runners
   [
@@ -336,9 +339,10 @@ to maze-runners-action
         if debug >= 1 [print "current node is a blind spot"]
         ifelse [maze-exit] of current-node = true
         [ ;; exit found
-          if [color] of next-path != green [color-best-path]
+          if [color] of next-path != green
+          [color-best-path set I-found-exit? true]
           if debug >= 1 [print "exit found"]
-          stop]
+        ]
         [ ;;exit NOT found
           color-link-red
           go-back
@@ -411,13 +415,24 @@ to maze-runners-action
     ]
    ]
   ]
+  if mr-found-exit? [stop]
 
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to-report mr-found-exit?
+  let a-mr-found-exit? false
+  let mr-on-exit one-of maze-runners with [I-found-exit? = true]
+  if mr-on-exit != nobody [set a-mr-found-exit? true]
+  report a-mr-found-exit?
 end
 
 to-report report-mr-direction
   let lh 45
   ifelse current-node = [end1] of next-path
-  [set lh [link-heading] of next-path][set lh [link-heading] of next-path + 180]
+  [set lh [link-heading] of next-path][set lh
+    [link-heading] of next-path + 180]
 ;  ifelse [label] of mr-current-node = "entrance"
 ;  [ ask mr-current-node
 ;    [ ask one-of my-links
@@ -536,7 +551,7 @@ to color-best-path
     print last-node
     print "before-last-node in visited-nodes"
     print before-last-node
-    print "link color red:"
+    print "link color green:"
   ]
   while [last-node != first visited-hubs]
   [
@@ -550,8 +565,8 @@ to color-best-path
   ]
 end
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 to discover-unknown-hub
   if debug >= 1 [print "discovery new hub"]
   set next-path search-link green
@@ -700,7 +715,7 @@ SLIDER
 177
 spacing
 spacing
-1
+3
 20
 20.0
 1
@@ -709,10 +724,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-48
-93
-126
-134
+47
+89
+125
+130
 Reset
 clear-all
 NIL
@@ -728,11 +743,11 @@ NIL
 BUTTON
 126
 10
-197
+211
 51
-GO
-go
-NIL
+Find exit
+find-exit\n
+T
 1
 T
 OBSERVER
@@ -746,9 +761,9 @@ BUTTON
 47
 52
 212
-85
-NIL
-maze-runners-action
+89
+Find exit stetp-by-step
+find-exit
 NIL
 1
 T
@@ -768,7 +783,7 @@ debug
 debug
 0
 2
-1.0
+2.0
 1
 1
 NIL
