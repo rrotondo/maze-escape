@@ -361,8 +361,9 @@ to find-exit
         if debug >= 1 [print "current node is a blind spot"]
         ifelse [maze-exit] of current-node = true
         [ ;; exit found
+          set I-found-exit? true
           if [color] of next-path != green
-          [color-best-path set I-found-exit? true]
+          [color-best-path]
           if debug >= 1 [print "exit found"]
         ]
         [ ;;exit NOT found
@@ -782,7 +783,7 @@ debug
 debug
 0
 2
-0.0
+2.0
 1
 1
 NIL
