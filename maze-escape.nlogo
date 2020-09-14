@@ -193,7 +193,7 @@ to set-entrance-exit
   let miny-exit min [ycor] of nodes with [exit? = true]
   let maxx-exit max [xcor] of nodes with [exit? = true]
   let maxy-exit max [ycor] of nodes with [exit? = true]
-  ;; lets define two possible exit, one in the edge, the other even in the
+  ;; let's define two possible exit, one in the edge, the other even in the
   ;; middle
   let edge-inout-nodes edge-nodes with [exit? = true]
   let inout-nodes nodes with [exit? = true]
@@ -213,8 +213,8 @@ to set-entrance-exit
     (ifelse
     pxcor = minx-exit
     [
-      let possible-exit one-of edge-inout-nodes with
-        [pxcor = maxx-exit and label != "entrance"]
+      if debug >= 1 [print "pxcor = minx-exit"]
+      let possible-exit one-of edge-inout-nodes with [pxcor = maxx-exit]
       ifelse possible-exit != nobody
         [
           ask possible-exit
@@ -241,8 +241,9 @@ to set-entrance-exit
       ]
 
     pxcor = maxx-exit
-    [ let possible-exit one-of edge-inout-nodes with
-        [pxcor = maxx-exit and label != "entrance"]
+    [
+        if debug >= 1 [print "pxcor = maxx-exit"]
+        let possible-exit one-of edge-inout-nodes with [pxcor = minx-exit]
       ifelse possible-exit != nobody
         [ ask possible-exit
           [ set maze-exit true set color green set size 3
@@ -267,8 +268,8 @@ to set-entrance-exit
 
     pycor = miny-exit
     [
-        let possible-exit one-of edge-inout-nodes with
-          [pxcor = maxx-exit and label != "entrance"]
+        if debug >= 1 [print "pycor = miny-exit"]
+        let possible-exit one-of edge-inout-nodes with [pycor = maxy-exit]
       ifelse possible-exit != nobody
         [
           ask possible-exit
@@ -295,8 +296,8 @@ to set-entrance-exit
 
     pycor = maxy-exit
     [
-      let possible-exit one-of edge-inout-nodes with
-        [pxcor = maxx-exit and label != "entrance"]
+      if debug >= 1 [print "pycor = maxy-exit"]
+      let possible-exit one-of edge-inout-nodes with [pycor = miny-exit]
       ifelse possible-exit != nobody
         [
           ask possible-exit
