@@ -36,6 +36,15 @@ to setup
   reset-ticks
 end
 
+;; use in order to run simulation on the same maze several times
+to reset-maze-runners
+  reset-ticks
+  ask links [set color black set thickness 0]
+  ask maze-runners [die]
+  setup-maze-runners
+end
+
+
 ;; build orderd white tiles in the world
 ;; according to the spacing (their distance)
 to build-tiles
@@ -738,7 +747,7 @@ BUTTON
 125
 130
 Reset
-clear-all
+reset-maze-runners
 NIL
 1
 T
