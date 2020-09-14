@@ -9,6 +9,7 @@ extensions [Nw]
 globals
 [
   tiles
+  new-links-red
 ]
 
 ;; defining breeds
@@ -32,6 +33,7 @@ to setup
   build-maze
   set-entrance-exit
   setup-maze-runners
+  reset-ticks
 end
 
 ;; build orderd white tiles in the world
@@ -47,6 +49,7 @@ to build-tiles
     and abs pycor - spacing > min-pycor
   ]
   ask tiles [ set pcolor white ]
+  set new-links-red 0
 end
 
 ;; Init nodes of given color,size and shape on each nodes
@@ -437,6 +440,11 @@ to find-exit
     ]
    ]
   ]
+;  tick
+  ifelse new-links-red != 0
+  [tick-advance new-links-red set new-links-red 0]
+  [ if not mr-found-exit? [tick] ]
+  if debug >= 1 [print ticks]
   if mr-found-exit? [stop]
 
 end
@@ -499,6 +507,7 @@ to color-link-red
     set last-node last visited-nodes
     set before-last-node
       item (position last-node visited-nodes - 1) visited-nodes
+    set new-links-red new-links-red + 1
   ]
 end
 
@@ -783,7 +792,7 @@ debug
 debug
 0
 2
-2.0
+0.0
 1
 1
 NIL
