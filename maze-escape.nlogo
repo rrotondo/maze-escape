@@ -42,6 +42,7 @@ to reset-maze-runners
   ask links [set color black set thickness 0]
   ask maze-runners [die]
   setup-maze-runners
+  clear-all-plots
 end
 
 
@@ -684,9 +685,9 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;line to keep code in 80 columns;;;;;;;;;;;;;;;;;;;;;;;;
 @#$#@#$#@
 GRAPHICS-WINDOW
-275
+229
 10
-951
+905
 469
 -1
 -1
@@ -807,6 +808,69 @@ debug
 1
 NIL
 HORIZONTAL
+
+MONITOR
+926
+11
+1065
+56
+Links
+count links
+17
+1
+11
+
+MONITOR
+926
+56
+1065
+101
+Shortest path length
+count links with [color = green]
+17
+1
+11
+
+MONITOR
+926
+101
+1065
+146
+% of explored world
+(count links with [color = green or color = yellow or color = red] * 100) / count links
+2
+1
+11
+
+MONITOR
+926
+145
+1065
+190
+% min exp needed
+count links with [color = green] * 100 / count links
+2
+1
+11
+
+PLOT
+923
+215
+1297
+468
+Explored world
+Time
+% link
+0.0
+100.0
+0.0
+100.0
+true
+true
+"\n" "set-plot-x-range 0 ticks + 1"
+PENS
+"shortest-path" 1.0 0 -10899396 true "" "plotxy ticks (count links with [color = green] * 100 / count links)"
+"links to blind spot" 1.0 0 -2674135 true "" "plotxy ticks (count links with [color = red] * 100 / count links)"
 
 @#$#@#$#@
 ## WHAT IS IT?
