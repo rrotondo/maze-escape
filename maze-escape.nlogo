@@ -1,4 +1,5 @@
 ;; Maze Escape a simulation to escape from a maze
+;; Version 1.0
 ;; Written by Riccardo Rotondo (riccardo.rotondo@phd.unict.it)
 ;; NetLogo version 6.1.1
 ;;;;;;;;;;;;;;;;;;;;;;;;line to keep code in 80 columns;;;;;;;;;;;;;;;;;;;;;;;;
@@ -906,7 +907,7 @@ Set debug to 1 or 2 in order to print a logger.
 ## EXTENDING THE MODEL
 
 Algorithm takes into accounts that more agents could explore the maze at the same time in order to find exit faster. Future versions could support the creation of more maze runners.
-A future study could compare the time took by maze runners to find exit according to world size. 
+A future study could create a second maze runner that take into accounts path already explored by the first maze runner. A cost function could estimate the perfect time the second maze runner needs to wait to find exit faster. 
 
 ## RELATED MODELS
 
@@ -916,7 +917,6 @@ This work is based on script created as a case study for a the graduation thesis
 
 NetLogo model developed by R. Rotondo (riccardo.rotondo@phd.unict.it) as an assignment of a PhD course. 
 A copy, along with some documentation and screenshots, is available on github at: https://github.com/rrotondo/maze-escape 
-
 @#$#@#$#@
 default
 true

@@ -33,7 +33,7 @@ Set debug to 1 or 2 in order to print a logger.
 ## EXTENDING THE MODEL
 
 Algorithm takes into accounts that more agents could explore the maze at the same time in order to find exit faster. Future versions could support the creation of more maze runners.
-A future study could compare the time took by maze runners to find exit according to world size. 
+A future study could create a second maze runner that take into accounts path already explored by the first maze runner. A cost function could estimate the perfect time the second maze runner needs to wait to find exit faster. 
 
 ## RELATED MODELS
 
